@@ -33,7 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static synchronized DatabaseHelper getInstance(Context context){
         if(instance == null){
-            instance = new DatabaseHelper(context);
+            instance = new DatabaseHelper(context.getApplicationContext());
         }
         return instance;
     }
@@ -74,7 +74,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 return -1L;
             }
         } else {
-            db.close();
             return db.insert(WlanVolumeContract.WlanVolumeTable.TABLE_NAME, null, values);
         }
     }
@@ -113,9 +112,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             if (cursor.getCount() == 1) {
                 cursor.moveToFirst();
-                int idCol = cursor.getColumnIndexOrThrow(columns[0]);
-                int ssidCol = cursor.getColumnIndexOrThrow(columns[1]);
-                int volumeCol = cursor.getColumnIndexOrThrow(columns[2]);
+                int idCol       = cursor.getColumnIndexOrThrow(columns[0]);
+                int ssidCol     = cursor.getColumnIndexOrThrow(columns[1]);
+                int volumeCol   = cursor.getColumnIndexOrThrow(columns[2]);
 
                 long id     = cursor.getLong(idCol);
                 String ssid = cursor.getString(ssidCol);
