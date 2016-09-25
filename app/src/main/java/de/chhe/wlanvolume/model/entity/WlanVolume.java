@@ -1,9 +1,8 @@
 package de.chhe.wlanvolume.model.entity;
 
 /**
- * Created by christoph on 24.09.16.
+ * This class represents a Wlan-Network and the volume which should be set when connected.
  */
-
 public class WlanVolume {
 
     private Long id;

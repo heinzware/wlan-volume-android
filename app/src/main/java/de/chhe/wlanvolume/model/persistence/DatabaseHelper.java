@@ -44,7 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(WlanVolumeContract.SQL_CREATE_CAR_TABLE);
+        db.execSQL(WlanVolumeContract.SQL_CREATE_WLAN_VOLUME_TABLE);
     }
 
     @Override
@@ -52,48 +52,62 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //nothing to do here cause we're still on version 1
     }
 
+    public void clearDatabase(){
+        try (SQLiteDatabase db = getWritableDatabase()) {
+            //drop all tables
+            db.execSQL(WlanVolumeContract.SQL_DELETE_WLAN_VOLUME_TABLE);
+            //recreate all tables
+            db.execSQL(WlanVolumeContract.SQL_CREATE_WLAN_VOLUME_TABLE);
+        } catch(Exception e) {
+            //TODO: handle exception
+        }
+    }
 
     /*
      * methods to work with WlanVolume-Entities
      */
 
-    public long saveWlanVolume(WlanVolume wlanVolume){
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(WlanVolumeContract.WlanVolumeTable.COLUMN_NAME_SSID, wlanVolume.getSsid());
-        values.put(WlanVolumeContract.WlanVolumeTable.COLUMN_NAME_VOLUME, wlanVolume.getVolume());
+    public long saveWlanVolume(WlanVolume wlanVolume) {
+        try (SQLiteDatabase db = getWritableDatabase()) {
 
-        long result;
-        if(wlanVolume.getId() != null) {
-            String where = WlanVolumeContract.WlanVolumeTable._ID + " = ?";
-            result = db.update(WlanVolumeContract.WlanVolumeTable.TABLE_NAME, values, where, new String[]{wlanVolume.getId() + ""});
-            db.close();
-            if(result == 1){
-                return wlanVolume.getId();
+            ContentValues values = new ContentValues();
+            values.put(WlanVolumeContract.WlanVolumeTable.COLUMN_NAME_SSID, wlanVolume.getSsid());
+            values.put(WlanVolumeContract.WlanVolumeTable.COLUMN_NAME_VOLUME, wlanVolume.getVolume());
+
+            long result;
+            if(wlanVolume.getId() != null) {
+                String where = WlanVolumeContract.WlanVolumeTable._ID + " = ?";
+                result = db.update(WlanVolumeContract.WlanVolumeTable.TABLE_NAME, values, where, new String[]{wlanVolume.getId() + ""});
+                if(result == 1) {
+                    return wlanVolume.getId();
+                } else {
+                    return -1L;
+                }
             } else {
-                return -1L;
+                return db.insert(WlanVolumeContract.WlanVolumeTable.TABLE_NAME, null, values);
             }
-        } else {
-            return db.insert(WlanVolumeContract.WlanVolumeTable.TABLE_NAME, null, values);
+        } catch(Exception e) {
+            //TODO:handle exceptions
+            return -1L;
         }
     }
 
     @Nullable
-    public WlanVolume getWlanVolumeBySsid(@NonNull String ssid){
+    public WlanVolume getWlanVolumeBySsid(@NonNull String ssid) {
         String where = WlanVolumeContract.WlanVolumeTable.COLUMN_NAME_SSID + " = ?";
         String[] whereValues = new String[]{ssid};
         return getWlanVolume(where,whereValues);
     }
 
     @Nullable
-    public WlanVolume getWlanVolumeById(long id){
+    public WlanVolume getWlanVolumeById(long id) {
         String where = WlanVolumeContract.WlanVolumeTable._ID + " = ?";
         String[] whereValues = new String[]{id + ""};
         return getWlanVolume(where,whereValues);
     }
 
     @Nullable
-    private WlanVolume getWlanVolume(String where, String[] whereValues){
+    private WlanVolume getWlanVolume(String where, String[] whereValues) {
         SQLiteDatabase db = getReadableDatabase();
 
         String[] columns = {
@@ -102,7 +116,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 WlanVolumeContract.WlanVolumeTable.COLUMN_NAME_VOLUME
         };
 
-        try(Cursor cursor = db.query(WlanVolumeContract.WlanVolumeTable.TABLE_NAME, // table name
+        try (Cursor cursor = db.query(WlanVolumeContract.WlanVolumeTable.TABLE_NAME, // table name
                 columns,                                                            // columns to return
                 where,                                                              // columns for WHERE
                 whereValues,                                                        // values for WHERE
@@ -129,10 +143,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.close();
                 return wlanVolume;
             }
-        }catch(Exception e){
+        } catch(Exception e) {
             //TODO: handle exceptions
-            db.close();
+            if (db != null && db.isOpen()) {
+                db.close();
+            }
         }
         return null;
+    }
+
+    public void deleteWlanVolume(@NonNull WlanVolume wlanVolume) {
+        try(SQLiteDatabase db = getWritableDatabase()) {
+
+            String where = WlanVolumeContract.WlanVolumeTable._ID + " = ?";
+
+            db.delete(WlanVolumeContract.WlanVolumeTable.TABLE_NAME,
+                    where, new String[]{wlanVolume.getId() + ""});
+
+        } catch(Exception e) {
+            //TODO: handle exceptions
+        }
     }
 }
