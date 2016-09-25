@@ -77,7 +77,6 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
             if (wlanVolume != null) {
                 Log.d(TAG, "The user wants to change the volume for the network " + ssid + " to " + wlanVolume.getVolume());
             }
-
             return null;
         }
     }
