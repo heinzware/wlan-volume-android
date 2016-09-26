@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">WlanVolume</string>
+    <string name="label_add">Add</string>
+    <string name="label_ssid">SSID:</string>
+    <string name="label_volume">Volume:</string>
+    <string name="label_edit">Edit</string>
+    <string name="label_save">Save</string>
+    <string name="label_enabling_wifi">Wifi is disabled. Enabling it now!</string>
+    <string name="label_choose_wifi">Choose a WiFi network:</string>
+    <string name="label_ok">OK</string>
+    <string name="label_cancel">Cancel</string>
+    <string name="label_wifi_results">WiFi-Scan result</string>
+    <string name="label_wifi_no_result">No WiFi network found!</string>
+    <string name="label_scanning_wifi">Scanning WiFi networks</string>
+    <string name="label_scanning">Scanning&#8230;</string>
+    <string name="label_save_error">Could not save. Pleas try again!</string>
+    <string name="label_connected_to">Connected to WiFi "%1$s"</string>
+    <string name="label_changed_to">Changed volume to %1$d of %2$d</string>
 </resources>

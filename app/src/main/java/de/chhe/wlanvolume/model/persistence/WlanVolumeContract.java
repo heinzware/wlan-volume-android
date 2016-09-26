@@ -16,6 +16,7 @@ class WlanVolumeContract {
         //column names
         static final String COLUMN_NAME_SSID     = "ssid";
         static final String COLUMN_NAME_VOLUME   = "volume";
+        static final String[] ALL_COLUMNS        = {_ID, COLUMN_NAME_SSID, COLUMN_NAME_VOLUME};
         //constraint names
         private static final String CONSTRAINT_VOLUME   = "volume_constraint";
     }
