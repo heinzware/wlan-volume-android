@@ -12,12 +12,12 @@ import android.widget.Toast;
 import java.util.Locale;
 
 import de.chhe.wlanvolume.R;
-import de.chhe.wlanvolume.model.entity.WlanVolume;
+import de.chhe.wlanvolume.model.entity.WifiVolume;
 import de.chhe.wlanvolume.model.persistence.DatabaseHelper;
 
-public class WlanVolumeActivity extends AppCompatActivity {
+public class WifiVolumeActivity extends AppCompatActivity {
 
-    private static final String TAG = WlanVolumeActivity.class.getSimpleName();
+    private static final String TAG = WifiVolumeActivity.class.getSimpleName();
 
     private TextView ssidTextView;
     private TextView volumeTextView;
@@ -27,14 +27,14 @@ public class WlanVolumeActivity extends AppCompatActivity {
     private MenuItem saveItem;
 
     private boolean editMode;
-    private WlanVolume wlanVolume;
+    private WifiVolume wifiVolume;
     private int maxVolume;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_wlan_volume);
+        setContentView(R.layout.activity_wifi_volume);
 
         ssidTextView    = (TextView)findViewById(R.id.ssidTextView);
         volumeTextView  = (TextView)findViewById(R.id.volumeTextView);
@@ -97,10 +97,10 @@ public class WlanVolumeActivity extends AppCompatActivity {
             ssidTextView.setText(getIntent().getStringExtra(ActivityHelper.INTENT_EXTRA_SSID));
             setTitle(ssidTextView.getText());
         } else if (getIntent().hasExtra(ActivityHelper.INTENT_EXTRA_WLAN_VOLUME)) {
-            wlanVolume = getIntent().getParcelableExtra(ActivityHelper.INTENT_EXTRA_WLAN_VOLUME);
-            ssidTextView.setText(wlanVolume.getSsid());
-            setTitle(wlanVolume.getSsid());
-            volumeSeekBar.setProgress(wlanVolume.getVolume());
+            wifiVolume = getIntent().getParcelableExtra(ActivityHelper.INTENT_EXTRA_WLAN_VOLUME);
+            ssidTextView.setText(wifiVolume.getSsid());
+            setTitle(wifiVolume.getSsid());
+            volumeSeekBar.setProgress(wifiVolume.getVolume());
         }
         applyEditMode();
     }
@@ -124,28 +124,28 @@ public class WlanVolumeActivity extends AppCompatActivity {
 
         int volume = volumeSeekBar.getProgress();
 
-        if(wlanVolume == null) {
-            wlanVolume = new WlanVolume();
+        if(wifiVolume == null) {
+            wifiVolume = new WifiVolume();
             String ssid = ssidTextView.getText().toString();
-            wlanVolume.setSsid(ssid);
+            wifiVolume.setSsid(ssid);
         }
 
-        wlanVolume.setVolume(volume);
+        wifiVolume.setVolume(volume);
 
         new AsyncTask<Void, Void, Long>(){
             @Override
             protected Long doInBackground(Void... voids) {
-                return DatabaseHelper.getInstance(WlanVolumeActivity.this).saveWlanVolume(wlanVolume);
+                return DatabaseHelper.getInstance(WifiVolumeActivity.this).saveWifiVolume(wifiVolume);
             }
 
             @Override
             protected void onPostExecute(Long id) {
                 if (id == -1L) {
-                    Toast.makeText(WlanVolumeActivity.this, R.string.label_save_error, Toast.LENGTH_LONG).show();
+                    Toast.makeText(WifiVolumeActivity.this, R.string.label_save_error, Toast.LENGTH_LONG).show();
                 } else {
                     editMode = false;
                     applyEditMode();
-                    Toast.makeText(WlanVolumeActivity.this, R.string.label_save_successful, Toast.LENGTH_LONG).show();
+                    Toast.makeText(WifiVolumeActivity.this, R.string.label_save_successful, Toast.LENGTH_LONG).show();
                 }
             }
         }.execute();

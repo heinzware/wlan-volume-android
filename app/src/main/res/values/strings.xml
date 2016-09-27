@@ -18,7 +18,12 @@
     <string name="label_changed_to">Changed volume to %1$d of %2$d</string>
     <string name="label_save_successful">Saved successfully!</string>
     <string name="label_location_title">Location Service</string>
-    <string name="label_location_message">Since Android 6.0 it is required to enable location services if you want to receive WiFi scan results.\n Please enable location services (and disable them after the scan to save your battery life).</string>
+    <string name="label_location_message">Since Android 6.0 it is required to enable location services if you want to receive WiFi scan results.\n\nPlease enable location services (and disable them after the scan to save your battery life).</string>
     <string name="label_yes">Yes</string>
     <string name="label_no">No</string>
+    <string name="label_delete">Delete</string>
+    <string name="label_delete_question">Do you really want to delete the WiFi network "%1$s"?</string>
+    <string name="label_delete_success">Deleteted successfully!</string>
+    <string name="label_delete_error">Could not delete. Please try again!</string>
+
 </resources>

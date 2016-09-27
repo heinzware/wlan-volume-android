@@ -13,13 +13,12 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import de.chhe.wlanvolume.R;
-import de.chhe.wlanvolume.model.entity.WlanVolume;
-
+import de.chhe.wlanvolume.model.entity.WifiVolume;
 
 
 public class WifiVolumeListAdapter extends BaseAdapter implements ListAdapter {
 
-    private ArrayList<WlanVolume> list = new ArrayList<>();
+    private ArrayList<WifiVolume> list = new ArrayList<>();
     private Context context;
     private int maxVolume;
 
@@ -31,18 +30,18 @@ public class WifiVolumeListAdapter extends BaseAdapter implements ListAdapter {
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        WlanVolume wlanVolume = list.get(position);
+        WifiVolume wifiVolume = list.get(position);
 
         if(convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.wlan_volume_list_item, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.wifi_volume_list_item, parent, false);
         }
 
         TextView ssidTextView   = (TextView)convertView.findViewById(R.id.SsidTextView);
         TextView volumeTextView = (TextView)convertView.findViewById(R.id.volumeTextView);
 
-        if(wlanVolume != null) {
-            ssidTextView.setText(wlanVolume.getSsid());
-            volumeTextView.setText(String.format(Locale.getDefault(), "%d/%d", wlanVolume.getVolume(), maxVolume));
+        if(wifiVolume != null) {
+            ssidTextView.setText(wifiVolume.getSsid());
+            volumeTextView.setText(String.format(Locale.getDefault(), "%d/%d", wifiVolume.getVolume(), maxVolume));
         }
 
         return convertView;
@@ -63,13 +62,13 @@ public class WifiVolumeListAdapter extends BaseAdapter implements ListAdapter {
         return list.size();
     }
 
-    public void setList(ArrayList<WlanVolume> list) {
+    public void setList(ArrayList<WifiVolume> list) {
         this.list = list;
     }
 
     public boolean containsSsid(String ssid) {
-        for (WlanVolume wlanVolume : list) {
-            if (ssid.equals(wlanVolume.getSsid())) {
+        for (WifiVolume wifiVolume : list) {
+            if (ssid.equals(wifiVolume.getSsid())) {
                 return true;
             }
         }

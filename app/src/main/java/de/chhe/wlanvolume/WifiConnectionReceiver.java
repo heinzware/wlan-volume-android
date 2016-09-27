@@ -16,7 +16,7 @@ import android.util.Log;
 
 import java.util.Locale;
 
-import de.chhe.wlanvolume.model.entity.WlanVolume;
+import de.chhe.wlanvolume.model.entity.WifiVolume;
 import de.chhe.wlanvolume.model.persistence.DatabaseHelper;
 
 public class WifiConnectionReceiver extends BroadcastReceiver {
@@ -77,7 +77,7 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
 
         private String ssid;
         private Context context;
-        private WlanVolume wlanVolume;
+        private WifiVolume wifiVolume;
         private int maxVolume;
 
         WifiConnectedTask(@NonNull String ssid, @NonNull Context context) {
@@ -89,12 +89,12 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
         protected Integer doInBackground(Void... voids) {
 
             //check if the user wants to change the volume, when we are connected to this SSID
-            wlanVolume = DatabaseHelper.getInstance(context).getWlanVolumeBySsid(ssid);
-            if (wlanVolume != null) {
-                Log.d(TAG, "The user wants to change the volume for the network " + ssid + " to " + wlanVolume.getVolume());
+            wifiVolume = DatabaseHelper.getInstance(context).getWifiVolumeBySsid(ssid);
+            if (wifiVolume != null) {
+                Log.d(TAG, "The user wants to change the volume for the network " + ssid + " to " + wifiVolume.getVolume());
                 AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
                 maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_RING);
-                audioManager.setStreamVolume(AudioManager.STREAM_RING, wlanVolume.getVolume(), AudioManager.FLAG_VIBRATE);
+                audioManager.setStreamVolume(AudioManager.STREAM_RING, wifiVolume.getVolume(), AudioManager.FLAG_VIBRATE);
                 return RETURN_CODE_VOLUME_CHANGED;
             }
             return RETURN_CODE_VOLUME_NOT_CHANGED;
@@ -106,8 +106,8 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
             if (RETURN_CODE_VOLUME_CHANGED == returnCode) {
 
                 Notification notification = new Notification.Builder(context)
-                        .setContentTitle(String.format(Locale.getDefault(), context.getResources().getString(R.string.label_connected_to), wlanVolume.getSsid()))
-                        .setContentText(String.format(Locale.getDefault(), context.getResources().getString(R.string.label_changed_to), wlanVolume.getVolume(), maxVolume))
+                        .setContentTitle(String.format(Locale.getDefault(), context.getResources().getString(R.string.label_connected_to), wifiVolume.getSsid()))
+                        .setContentText(String.format(Locale.getDefault(), context.getResources().getString(R.string.label_changed_to), wifiVolume.getVolume(), maxVolume))
                         .setSmallIcon(R.mipmap.ic_launcher) //TODO:change icon
                         .build();
 

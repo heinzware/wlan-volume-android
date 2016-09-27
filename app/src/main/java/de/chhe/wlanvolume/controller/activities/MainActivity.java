@@ -18,26 +18,32 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import de.chhe.wlanvolume.R;
 import de.chhe.wlanvolume.controller.dialogs.WifiChooserDialog;
 import de.chhe.wlanvolume.controller.WifiVolumeListAdapter;
 import de.chhe.wlanvolume.controller.dialogs.WifiScanDialog;
-import de.chhe.wlanvolume.model.entity.WlanVolume;
+import de.chhe.wlanvolume.model.entity.WifiVolume;
 import de.chhe.wlanvolume.model.persistence.DatabaseHelper;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 2;
+    private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 0;
+    private static final int ITEM_ID_EDIT   = 1;
+    private static final int ITEM_ID_DELETE = 2;
 
     private WifiVolumeListAdapter listAdapter;
 
@@ -62,13 +68,14 @@ public class MainActivity extends AppCompatActivity {
             wifiListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Intent wifiVolumeIntent = new Intent(MainActivity.this, WlanVolumeActivity.class);
+                    Intent wifiVolumeIntent = new Intent(MainActivity.this, WifiVolumeActivity.class);
                     wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_EDIT_MODE, false);
-                    wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_WLAN_VOLUME, (WlanVolume)listAdapter.getItem(i));
+                    wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_WLAN_VOLUME, (WifiVolume)listAdapter.getItem(i));
                     wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_MAX_VOLUME, maxVolume);
                     startActivity(wifiVolumeIntent);
                 }
             });
+            registerForContextMenu(wifiListView);
         }
 
         wifiScanReceiver = new BroadcastReceiver() {
@@ -102,6 +109,68 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v.getId() == R.id.wlanListView) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+            View headerView = ((LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.context_menu_header, null);
+            TextView headerTitle = (TextView)headerView.findViewById(R.id.headerTitle);
+            headerTitle.setText(((WifiVolume) listAdapter.getItem(info.position)).getSsid());
+            menu.setHeaderView(headerView);
+            menu.add(Menu.NONE, ITEM_ID_EDIT, 1, R.string.label_edit);
+            menu.add(Menu.NONE, ITEM_ID_DELETE, 2, R.string.label_delete);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case ITEM_ID_EDIT:
+                Intent wifiVolumeIntent = new Intent(this, WifiVolumeActivity.class);
+                wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_EDIT_MODE, true);
+                wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_WLAN_VOLUME, maxVolume);
+                wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_WLAN_VOLUME, (WifiVolume)listAdapter.getItem(info.position));
+                startActivity(wifiVolumeIntent);
+                return true;
+            case ITEM_ID_DELETE:
+                final WifiVolume wifiVolume = (WifiVolume)listAdapter.getItem(info.position);
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.label_delete)
+                        .setMessage(String.format(Locale.getDefault(), getString(R.string.label_delete_question), wifiVolume.getSsid()))
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.label_yes, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int i) {
+                                        new AsyncTask<Void, Void, Boolean>(){
+                                            @Override
+                                            protected Boolean doInBackground(Void... voids) {
+                                                return DatabaseHelper.getInstance(MainActivity.this).deleteWifiVolume(wifiVolume);
+                                            }
+                                            @Override
+                                            protected void onPostExecute(Boolean success) {
+                                                int msg = success ? R.string.label_delete_success : R.string.label_delete_error;
+                                                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
+                                                if (success) {
+                                                    loadList();
+                                                }
+                                            }
+                                        }.execute();
+                                    }
+                                })
+                        .setNegativeButton(R.string.label_no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .show();
+                return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         for (int grantResult : grantResults) {
             if (grantResult != PackageManager.PERMISSION_GRANTED) {
@@ -116,16 +185,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadList(){
         if (listAdapter != null) {
-            new AsyncTask<Void, Void, ArrayList<WlanVolume>>(){
+            new AsyncTask<Void, Void, ArrayList<WifiVolume>>(){
 
                 @Override
-                protected ArrayList<WlanVolume> doInBackground(Void... voids) {
-                    return DatabaseHelper.getInstance(MainActivity.this).getAllWlanVolumes();
+                protected ArrayList<WifiVolume> doInBackground(Void... voids) {
+                    return DatabaseHelper.getInstance(MainActivity.this).getAllWifiVolumes();
                 }
 
                 @Override
-                protected void onPostExecute(ArrayList<WlanVolume> wlanVolumes) {
-                    listAdapter.setList(wlanVolumes);
+                protected void onPostExecute(ArrayList<WifiVolume> wifiVolumes) {
+                    listAdapter.setList(wifiVolumes);
                     listAdapter.notifyDataSetChanged();
                 }
 

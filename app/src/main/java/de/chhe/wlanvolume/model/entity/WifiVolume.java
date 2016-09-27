@@ -6,13 +6,13 @@ import android.os.Parcelable;
 /**
  * This class represents a Wlan-Network and the volume which should be set when connected.
  */
-public class WlanVolume implements Parcelable {
+public class WifiVolume implements Parcelable {
 
     private Long id;
     private String ssid;
     private Integer volume;
 
-    public WlanVolume(){}
+    public WifiVolume(){}
 
     public Long getId() {
         return id;
@@ -51,21 +51,21 @@ public class WlanVolume implements Parcelable {
         dest.writeValue(this.volume);
     }
 
-    private WlanVolume(Parcel in) {
+    private WifiVolume(Parcel in) {
         this.id = (Long) in.readValue(Long.class.getClassLoader());
         this.ssid = in.readString();
         this.volume = (Integer) in.readValue(Integer.class.getClassLoader());
     }
 
-    public static final Parcelable.Creator<WlanVolume> CREATOR = new Parcelable.Creator<WlanVolume>() {
+    public static final Parcelable.Creator<WifiVolume> CREATOR = new Parcelable.Creator<WifiVolume>() {
         @Override
-        public WlanVolume createFromParcel(Parcel source) {
-            return new WlanVolume(source);
+        public WifiVolume createFromParcel(Parcel source) {
+            return new WifiVolume(source);
         }
 
         @Override
-        public WlanVolume[] newArray(int size) {
-            return new WlanVolume[size];
+        public WifiVolume[] newArray(int size) {
+            return new WifiVolume[size];
         }
     };
 }

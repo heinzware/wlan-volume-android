@@ -11,7 +11,7 @@ import java.util.List;
 import de.chhe.wlanvolume.R;
 import de.chhe.wlanvolume.controller.activities.ActivityHelper;
 import de.chhe.wlanvolume.controller.activities.MainActivity;
-import de.chhe.wlanvolume.controller.activities.WlanVolumeActivity;
+import de.chhe.wlanvolume.controller.activities.WifiVolumeActivity;
 
 
 public class WifiChooserDialog extends AlertDialog.Builder {
@@ -38,7 +38,7 @@ public class WifiChooserDialog extends AlertDialog.Builder {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     dialog.dismiss();
                     int selectedPosition = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
-                    Intent wifiVolumeIntent = new Intent(mainActivity, WlanVolumeActivity.class);
+                    Intent wifiVolumeIntent = new Intent(mainActivity, WifiVolumeActivity.class);
                     wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_SSID, scanResults.get(selectedPosition).SSID);
                     wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_EDIT_MODE, true);
                     wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_MAX_VOLUME, mainActivity.getMaxVolume());

@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".controller.activities.WlanVolumeActivity"
+            android:name=".controller.activities.WifiVolumeActivity"
             android:screenOrientation="portrait"
             android:parentActivityName=".controller.activities.MainActivity"/>
 

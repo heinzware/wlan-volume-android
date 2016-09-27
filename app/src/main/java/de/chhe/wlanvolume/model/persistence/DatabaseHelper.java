@@ -10,7 +10,7 @@ import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 
-import de.chhe.wlanvolume.model.entity.WlanVolume;
+import de.chhe.wlanvolume.model.entity.WifiVolume;
 
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -43,7 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(WlanVolumeContract.SQL_CREATE_WLAN_VOLUME_TABLE);
+        db.execSQL(WifiVolumeContract.SQL_CREATE_WLAN_VOLUME_TABLE);
     }
 
     @Override
@@ -54,36 +54,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void clearDatabase(){
         try (SQLiteDatabase db = getWritableDatabase()) {
             //drop all tables
-            db.execSQL(WlanVolumeContract.SQL_DELETE_WLAN_VOLUME_TABLE);
+            db.execSQL(WifiVolumeContract.SQL_DELETE_WLAN_VOLUME_TABLE);
             //recreate all tables
-            db.execSQL(WlanVolumeContract.SQL_CREATE_WLAN_VOLUME_TABLE);
+            db.execSQL(WifiVolumeContract.SQL_CREATE_WLAN_VOLUME_TABLE);
         } catch(Exception e) {
             //TODO: handle exception
         }
     }
 
     /*
-     * methods to work with WlanVolume-Entities
+     * methods to work with WifiVolume-Entities
      */
 
-    public long saveWlanVolume(WlanVolume wlanVolume) {
+    public long saveWifiVolume(WifiVolume wifiVolume) {
         try (SQLiteDatabase db = getWritableDatabase()) {
 
             ContentValues values = new ContentValues();
-            values.put(WlanVolumeContract.WlanVolumeTable.COLUMN_NAME_SSID, wlanVolume.getSsid());
-            values.put(WlanVolumeContract.WlanVolumeTable.COLUMN_NAME_VOLUME, wlanVolume.getVolume());
+            values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_SSID, wifiVolume.getSsid());
+            values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_VOLUME, wifiVolume.getVolume());
 
             long result;
-            if(wlanVolume.getId() != null) {
-                String where = WlanVolumeContract.WlanVolumeTable._ID + " = ?";
-                result = db.update(WlanVolumeContract.WlanVolumeTable.TABLE_NAME, values, where, new String[]{wlanVolume.getId() + ""});
+            if(wifiVolume.getId() != null) {
+                String where = WifiVolumeContract.WifiVolumeTable._ID + " = ?";
+                result = db.update(WifiVolumeContract.WifiVolumeTable.TABLE_NAME, values, where, new String[]{wifiVolume.getId() + ""});
                 if(result == 1) {
-                    return wlanVolume.getId();
+                    return wifiVolume.getId();
                 } else {
                     return -1L;
                 }
             } else {
-                return db.insert(WlanVolumeContract.WlanVolumeTable.TABLE_NAME, null, values);
+                return db.insert(WifiVolumeContract.WifiVolumeTable.TABLE_NAME, null, values);
             }
         } catch(Exception e) {
             //TODO:handle exceptions
@@ -92,26 +92,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Nullable
-    public WlanVolume getWlanVolumeBySsid(@NonNull String ssid) {
-        String where = WlanVolumeContract.WlanVolumeTable.COLUMN_NAME_SSID + " = ?";
+    public WifiVolume getWifiVolumeBySsid(@NonNull String ssid) {
+        String where = WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_SSID + " = ?";
         String[] whereValues = new String[]{ssid};
-        return getWlanVolume(where,whereValues);
+        return getWifiVolume(where,whereValues);
     }
 
     @Nullable
-    public WlanVolume getWlanVolumeById(long id) {
-        String where = WlanVolumeContract.WlanVolumeTable._ID + " = ?";
+    public WifiVolume getWifiVolumeById(long id) {
+        String where = WifiVolumeContract.WifiVolumeTable._ID + " = ?";
         String[] whereValues = new String[]{id + ""};
-        return getWlanVolume(where,whereValues);
+        return getWifiVolume(where,whereValues);
     }
 
     @Nullable
-    private WlanVolume getWlanVolume(String where, String[] whereValues) {
+    private WifiVolume getWifiVolume(String where, String[] whereValues) {
 
         SQLiteDatabase db = getReadableDatabase();
 
-        try (Cursor cursor = db.query(WlanVolumeContract.WlanVolumeTable.TABLE_NAME, // table name
-                WlanVolumeContract.WlanVolumeTable.ALL_COLUMNS,                      // columns to return
+        try (Cursor cursor = db.query(WifiVolumeContract.WifiVolumeTable.TABLE_NAME, // table name
+                WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS,                      // columns to return
                 where,                                                               // columns for WHERE
                 whereValues,                                                         // values for WHERE
                 null,                                                                // groups
@@ -121,11 +121,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (cursor.getCount() == 1) {
 
                 cursor.moveToFirst();
-                WlanVolume wlanVolume = cursorToWlanVolume(cursor);
+                WifiVolume wifiVolume = cursorToWifiVolume(cursor);
                 cursor.close();
 
                 db.close();
-                return wlanVolume;
+                return wifiVolume;
             }
         } catch(Exception e) {
             //TODO: handle exceptions
@@ -137,28 +137,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @NonNull
-    public ArrayList<WlanVolume> getAllWlanVolumes() {
+    public ArrayList<WifiVolume> getAllWifiVolumes() {
         try(SQLiteDatabase db = getReadableDatabase()) {
 
-            String sortOrder = WlanVolumeContract.WlanVolumeTable._ID + " ASC";
+            String sortOrder = WifiVolumeContract.WifiVolumeTable._ID + " ASC";
 
-            Cursor cursor = db.query(WlanVolumeContract.WlanVolumeTable.TABLE_NAME,
-                    WlanVolumeContract.WlanVolumeTable.ALL_COLUMNS,
+            Cursor cursor = db.query(WifiVolumeContract.WifiVolumeTable.TABLE_NAME,
+                    WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS,
                     null,
                     null,
                     null,
                     null,
                     sortOrder);
 
-            ArrayList<WlanVolume> wlanVolumes = new ArrayList<>();
+            ArrayList<WifiVolume> wifiVolumes = new ArrayList<>();
 
             while (cursor.moveToNext()) {
-                wlanVolumes.add(cursorToWlanVolume(cursor));
+                wifiVolumes.add(cursorToWifiVolume(cursor));
             }
 
             cursor.close();
 
-            return wlanVolumes;
+            return wifiVolumes;
         } catch(Exception e) {
             //TODO: handle exception
         }
@@ -166,34 +166,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return new ArrayList<>();
     }
 
-    private WlanVolume cursorToWlanVolume(@NonNull Cursor cursor) {
+    private WifiVolume cursorToWifiVolume(@NonNull Cursor cursor) {
 
-        int idCol       = cursor.getColumnIndexOrThrow(WlanVolumeContract.WlanVolumeTable.ALL_COLUMNS[0]);
-        int ssidCol     = cursor.getColumnIndexOrThrow(WlanVolumeContract.WlanVolumeTable.ALL_COLUMNS[1]);
-        int volumeCol   = cursor.getColumnIndexOrThrow(WlanVolumeContract.WlanVolumeTable.ALL_COLUMNS[2]);
+        int idCol       = cursor.getColumnIndexOrThrow(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[0]);
+        int ssidCol     = cursor.getColumnIndexOrThrow(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[1]);
+        int volumeCol   = cursor.getColumnIndexOrThrow(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[2]);
 
         long id     = cursor.getLong(idCol);
         String ssid = cursor.getString(ssidCol);
         int volume  = cursor.getInt(volumeCol);
 
-        WlanVolume wlanVolume = new WlanVolume();
-        wlanVolume.setId(id);
-        wlanVolume.setSsid(ssid);
-        wlanVolume.setVolume(volume);
+        WifiVolume wifiVolume = new WifiVolume();
+        wifiVolume.setId(id);
+        wifiVolume.setSsid(ssid);
+        wifiVolume.setVolume(volume);
 
-        return wlanVolume;
+        return wifiVolume;
     }
 
-    public void deleteWlanVolume(@NonNull WlanVolume wlanVolume) {
+    public boolean deleteWifiVolume(@NonNull WifiVolume wifiVolume) {
         try(SQLiteDatabase db = getWritableDatabase()) {
 
-            String where = WlanVolumeContract.WlanVolumeTable._ID + " = ?";
+            String where = WifiVolumeContract.WifiVolumeTable._ID + " = ?";
 
-            db.delete(WlanVolumeContract.WlanVolumeTable.TABLE_NAME,
-                    where, new String[]{wlanVolume.getId() + ""});
+            int rows = db.delete(WifiVolumeContract.WifiVolumeTable.TABLE_NAME,
+                    where, new String[]{wifiVolume.getId() + ""});
 
+            return rows == 1;
         } catch(Exception e) {
             //TODO: handle exceptions
         }
+
+        return false;
     }
 }
