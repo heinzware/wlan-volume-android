@@ -29,7 +29,7 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
     private static final String PREFERENCE_KEY_CONNECTED = "key.connected";
 
     private static final String NOTIFICATION_TAG = "WifiConnectionReceiver.Notification.Tag";
-    private static final int NOTIFICATION_ID = 42;
+    private static final int NOTIFICATION_ID     = 42;
 
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -102,7 +102,9 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
 
         @Override
         protected void onPostExecute(Integer returnCode) {
+
             if (RETURN_CODE_VOLUME_CHANGED == returnCode) {
+
                 Notification notification = new Notification.Builder(context)
                         .setContentTitle(String.format(Locale.getDefault(), context.getResources().getString(R.string.label_connected_to), wlanVolume.getSsid()))
                         .setContentText(String.format(Locale.getDefault(), context.getResources().getString(R.string.label_changed_to), wlanVolume.getVolume(), maxVolume))

@@ -2,9 +2,6 @@ package de.chhe.wlanvolume.model.persistence;
 
 import android.provider.BaseColumns;
 
-/**
- * Created by christoph on 24.09.16.
- */
 
 class WlanVolumeContract {
 

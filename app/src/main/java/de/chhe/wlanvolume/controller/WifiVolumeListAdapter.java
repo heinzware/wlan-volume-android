@@ -17,13 +17,13 @@ import de.chhe.wlanvolume.model.entity.WlanVolume;
 
 
 
-public class WlanVolumeListAdapter extends BaseAdapter implements ListAdapter {
+public class WifiVolumeListAdapter extends BaseAdapter implements ListAdapter {
 
     private ArrayList<WlanVolume> list = new ArrayList<>();
     private Context context;
     private int maxVolume;
 
-    public WlanVolumeListAdapter(@NonNull Context context, int maxVolume) {
+    public WifiVolumeListAdapter(@NonNull Context context, int maxVolume) {
         this.context = context;
         this.maxVolume = maxVolume;
     }
@@ -65,5 +65,14 @@ public class WlanVolumeListAdapter extends BaseAdapter implements ListAdapter {
 
     public void setList(ArrayList<WlanVolume> list) {
         this.list = list;
+    }
+
+    public boolean containsSsid(String ssid) {
+        for (WlanVolume wlanVolume : list) {
+            if (ssid.equals(wlanVolume.getSsid())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

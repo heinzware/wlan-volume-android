@@ -1,11 +1,5 @@
 package de.chhe.wlanvolume.controller.activities;
 
-import android.content.Context;
-
-/**
- * Created by christoph on 26.09.16.
- */
-
 public class ActivityHelper {
 
     public static final String INTENT_EXTRA_SSID = "intent.extra.ssid";

@@ -115,6 +115,9 @@ public class WlanVolumeActivity extends AppCompatActivity {
         if (volumeSeekBar != null) {
             volumeSeekBar.setEnabled(editMode);
         }
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(!editMode);
+        }
     }
 
     private void save(){
@@ -142,6 +145,7 @@ public class WlanVolumeActivity extends AppCompatActivity {
                 } else {
                     editMode = false;
                     applyEditMode();
+                    Toast.makeText(WlanVolumeActivity.this, R.string.label_save_successful, Toast.LENGTH_LONG).show();
                 }
             }
         }.execute();

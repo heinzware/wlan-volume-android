@@ -12,9 +12,6 @@ import java.util.ArrayList;
 
 import de.chhe.wlanvolume.model.entity.WlanVolume;
 
-/**
- * Created by christoph on 24.09.16.
- */
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
