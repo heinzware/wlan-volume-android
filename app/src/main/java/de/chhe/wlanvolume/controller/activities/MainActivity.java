@@ -163,8 +163,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int i) {
                                 dialog.dismiss();
                             }
-                        })
-                        .show();
+                        }).show();
                 return true;
         }
         return super.onContextItemSelected(item);
@@ -208,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_ACCESS_COARSE_LOCATION);
+                return;
             }
 
             LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
