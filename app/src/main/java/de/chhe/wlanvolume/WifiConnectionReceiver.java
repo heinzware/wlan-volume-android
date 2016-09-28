@@ -1,6 +1,5 @@
 package de.chhe.wlanvolume;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,11 +10,8 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
-
-import java.util.Locale;
-
+import de.chhe.wlanvolume.controller.activities.ActivityHelper;
 import de.chhe.wlanvolume.model.entity.WifiVolume;
 import de.chhe.wlanvolume.model.persistence.DatabaseHelper;
 
@@ -28,23 +24,17 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
     private static final String PREFERENCES_NAME         = "WifiConnectionReceiver.Preferences";
     private static final String PREFERENCE_KEY_CONNECTED = "key.connected";
 
-    private static final String NOTIFICATION_TAG = "WifiConnectionReceiver.Notification.Tag";
-    private static final int NOTIFICATION_ID     = 42;
-
     @Override
     public void onReceive(final Context context, Intent intent) {
 
-        if (intent != null) {
+        if (intent != null && intent.hasExtra(WifiManager.EXTRA_NETWORK_INFO)) {
 
             NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+            SharedPreferences prefs = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
 
             if (networkInfo.isConnected() && !networkInfo.getExtraInfo().equals(EXTRA_UNKNOWN_SSID)) {
 
-                SharedPreferences prefs = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
-                String ssid = networkInfo.getExtraInfo();
-                if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
-                    ssid = ssid.substring(1, ssid.length() - 1);
-                }
+                String ssid = ActivityHelper.trimSsid(networkInfo.getExtraInfo());
 
                 if (!prefs.contains(PREFERENCE_KEY_CONNECTED) || !ssid.equals(prefs.getString(PREFERENCE_KEY_CONNECTED,EXTRA_UNKNOWN_SSID))) {
 
@@ -57,14 +47,15 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
                     new WifiConnectedTask(ssid, context).execute();
                 }
             } else {
-                SharedPreferences prefs = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
-                if(prefs.contains(PREFERENCE_KEY_CONNECTED)){
+
+                if (prefs.contains(PREFERENCE_KEY_CONNECTED)) {
+
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.remove(PREFERENCE_KEY_CONNECTED);
                     editor.commit();
 
                     NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                    notificationManager.cancel(NOTIFICATION_TAG, NOTIFICATION_ID);
+                    notificationManager.cancel(ActivityHelper.NOTIFICATION_TAG, ActivityHelper.NOTIFICATION_ID);
                 }
             }
         }
@@ -91,7 +82,6 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
             //check if the user wants to change the volume, when we are connected to this SSID
             wifiVolume = DatabaseHelper.getInstance(context).getWifiVolumeBySsid(ssid);
             if (wifiVolume != null) {
-                Log.d(TAG, "The user wants to change the volume for the network " + ssid + " to " + wifiVolume.getVolume());
                 AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
                 maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_RING);
                 audioManager.setStreamVolume(AudioManager.STREAM_RING, wifiVolume.getVolume(), AudioManager.FLAG_VIBRATE);
@@ -105,16 +95,7 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
 
             if (RETURN_CODE_VOLUME_CHANGED == returnCode) {
 
-                Notification notification = new Notification.Builder(context)
-                        .setContentTitle(String.format(Locale.getDefault(), context.getResources().getString(R.string.label_connected_to), wifiVolume.getSsid()))
-                        .setContentText(String.format(Locale.getDefault(), context.getResources().getString(R.string.label_changed_to), wifiVolume.getVolume(), maxVolume))
-                        .setSmallIcon(R.mipmap.ic_launcher) //TODO:change icon
-                        .build();
-
-                notification.flags |= Notification.FLAG_NO_CLEAR;
-
-                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.notify(NOTIFICATION_TAG, NOTIFICATION_ID, notification);
+                ActivityHelper.showNotification(context, wifiVolume, maxVolume);
             }
         }
     }

@@ -23,7 +23,13 @@
     <string name="label_no">No</string>
     <string name="label_delete">Delete</string>
     <string name="label_delete_question">Do you really want to delete the WiFi network "%1$s"?</string>
-    <string name="label_delete_success">Deleteted successfully!</string>
+    <string name="label_delete_success">Deleted successfully!</string>
     <string name="label_delete_error">Could not delete. Please try again!</string>
+    <string name="label_stop_edit">Stop editing?</string>
+    <string name="label_stop_edit_question">Your data gets lost when you stop editing without saving.\n\nDo you want to stop editing?</string>
+    <string name="label_stop_editing">Stop editing</string>
+    <string name="label_keep_editing">Keep editing</string>
+    <string name="label_show_notification">Show Notification:</string>
+    <string name="label_comment">Comment:</string>
 
 </resources>

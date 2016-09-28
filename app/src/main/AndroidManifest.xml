@@ -25,7 +25,8 @@
         <activity
             android:name=".controller.activities.WifiVolumeActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".controller.activities.MainActivity"/>
+            android:parentActivityName=".controller.activities.MainActivity"
+            android:windowSoftInputMode="stateHidden"/>
 
         <receiver android:name=".WifiConnectionReceiver">
             <intent-filter>

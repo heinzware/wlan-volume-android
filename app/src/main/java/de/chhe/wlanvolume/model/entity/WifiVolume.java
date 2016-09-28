@@ -11,6 +11,8 @@ public class WifiVolume implements Parcelable {
     private Long id;
     private String ssid;
     private Integer volume;
+    private boolean showNotification;
+    private String comment;
 
     public WifiVolume(){}
 
@@ -38,6 +40,22 @@ public class WifiVolume implements Parcelable {
         this.volume = volume;
     }
 
+    public boolean isShowNotification() {
+        return showNotification;
+    }
+
+    public void setShowNotification(boolean showNotification) {
+        this.showNotification = showNotification;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
 
     @Override
     public int describeContents() {
@@ -49,15 +67,19 @@ public class WifiVolume implements Parcelable {
         dest.writeValue(this.id);
         dest.writeString(this.ssid);
         dest.writeValue(this.volume);
+        dest.writeByte(this.showNotification ? (byte) 1 : (byte) 0);
+        dest.writeString(this.comment);
     }
 
-    private WifiVolume(Parcel in) {
+    protected WifiVolume(Parcel in) {
         this.id = (Long) in.readValue(Long.class.getClassLoader());
         this.ssid = in.readString();
         this.volume = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.showNotification = in.readByte() != 0;
+        this.comment = in.readString();
     }
 
-    public static final Parcelable.Creator<WifiVolume> CREATOR = new Parcelable.Creator<WifiVolume>() {
+    public static final Creator<WifiVolume> CREATOR = new Creator<WifiVolume>() {
         @Override
         public WifiVolume createFromParcel(Parcel source) {
             return new WifiVolume(source);

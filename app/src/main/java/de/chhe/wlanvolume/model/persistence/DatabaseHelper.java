@@ -7,17 +7,21 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import de.chhe.wlanvolume.model.entity.WifiVolume;
 
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
+    private static final String TAG = DatabaseHelper.class.getSimpleName();
+
     //general values of the database
     private static final String DATABASE_NAME = "wlan_volume.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Useful SQL query parts
     static final String TEXT_TYPE           = " TEXT";
@@ -47,8 +51,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
-        //nothing to do here cause we're still on version 1
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion == 1 && newVersion == 2) {
+            Log.d(TAG, String.format(Locale.getDefault(), "Upgrading database from version %d to %d.", oldVersion, newVersion));
+            try {
+                db.beginTransaction();
+                String addNotifyQuery = "ALTER TABLE " + WifiVolumeContract.WifiVolumeTable.TABLE_NAME + " ADD COLUMN " + WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_NOTIFY + INTEGER_TYPE + ";";
+                String addCommentQuery = "ALTER TABLE " + WifiVolumeContract.WifiVolumeTable.TABLE_NAME + " ADD COLUMN " + WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_COMMENT + TEXT_TYPE + ";";
+                db.execSQL(addNotifyQuery);
+                db.execSQL(addCommentQuery);
+                String setNotifyFalse = "UPDATE " + WifiVolumeContract.WifiVolumeTable.TABLE_NAME + " SET " + WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_NOTIFY + " = 0;";
+                db.execSQL(setNotifyFalse);
+                db.setTransactionSuccessful();
+            } catch (Exception e) {
+                Log.d(TAG, String.format(Locale.getDefault(), "Exception while upgrading database from version %d to %d.\n Exception is:\n%s", oldVersion, newVersion, e.getMessage()));
+            }
+            db.endTransaction();
+        }
     }
 
     public void clearDatabase(){
@@ -72,6 +91,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_SSID, wifiVolume.getSsid());
             values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_VOLUME, wifiVolume.getVolume());
+            values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_NOTIFY, wifiVolume.isShowNotification() ? 1 : 0);
+            if (wifiVolume.getComment() != null) values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_COMMENT, wifiVolume.getComment());
 
             long result;
             if(wifiVolume.getId() != null) {
@@ -168,18 +189,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private WifiVolume cursorToWifiVolume(@NonNull Cursor cursor) {
 
-        int idCol       = cursor.getColumnIndexOrThrow(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[0]);
-        int ssidCol     = cursor.getColumnIndexOrThrow(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[1]);
-        int volumeCol   = cursor.getColumnIndexOrThrow(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[2]);
+        int idCol       = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[0]);
+        int ssidCol     = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[1]);
+        int volumeCol   = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[2]);
+        int notifyCol   = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[3]);
+        int commentCol  = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[4]);
 
-        long id     = cursor.getLong(idCol);
-        String ssid = cursor.getString(ssidCol);
-        int volume  = cursor.getInt(volumeCol);
+        long id         = cursor.getLong(idCol);
+        String ssid     = cursor.getString(ssidCol);
+        int volume      = cursor.getInt(volumeCol);
+        boolean notify  = cursor.getInt(notifyCol) > 0;
+        String comment  = cursor.getString(commentCol);
 
         WifiVolume wifiVolume = new WifiVolume();
         wifiVolume.setId(id);
         wifiVolume.setSsid(ssid);
         wifiVolume.setVolume(volume);
+        wifiVolume.setShowNotification(notify);
+        wifiVolume.setComment(comment);
 
         return wifiVolume;
     }

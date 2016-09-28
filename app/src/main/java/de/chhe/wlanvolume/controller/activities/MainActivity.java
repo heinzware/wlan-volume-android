@@ -68,11 +68,7 @@ public class MainActivity extends AppCompatActivity {
             wifiListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Intent wifiVolumeIntent = new Intent(MainActivity.this, WifiVolumeActivity.class);
-                    wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_EDIT_MODE, false);
-                    wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_WLAN_VOLUME, (WifiVolume)listAdapter.getItem(i));
-                    wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_MAX_VOLUME, maxVolume);
-                    startActivity(wifiVolumeIntent);
+                    startActivity(ActivityHelper.createWifiVolumeIntent(MainActivity.this, false, maxVolume, (WifiVolume)listAdapter.getItem(i), null));
                 }
             });
             registerForContextMenu(wifiListView);
@@ -127,11 +123,7 @@ public class MainActivity extends AppCompatActivity {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case ITEM_ID_EDIT:
-                Intent wifiVolumeIntent = new Intent(this, WifiVolumeActivity.class);
-                wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_EDIT_MODE, true);
-                wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_WLAN_VOLUME, maxVolume);
-                wifiVolumeIntent.putExtra(ActivityHelper.INTENT_EXTRA_WLAN_VOLUME, (WifiVolume)listAdapter.getItem(info.position));
-                startActivity(wifiVolumeIntent);
+                startActivity(ActivityHelper.createWifiVolumeIntent(this, true, maxVolume, (WifiVolume)listAdapter.getItem(info.position), null));
                 return true;
             case ITEM_ID_DELETE:
                 final WifiVolume wifiVolume = (WifiVolume)listAdapter.getItem(info.position);
