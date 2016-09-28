@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WlanVolume</string>
+    <string name="app_name">WifiVolume</string>
     <string name="label_add">Add</string>
     <string name="label_ssid">SSID:</string>
     <string name="label_volume">Volume:</string>
@@ -14,7 +14,7 @@
     <string name="label_scanning_wifi">Scanning WiFi networks</string>
     <string name="label_scanning">Scanning&#8230;</string>
     <string name="label_save_error">Could not save. Pleas try again!</string>
-    <string name="label_connected_to">Connected to WiFi "%1$s"</string>
+    <string name="label_connected_to">Connected to WiFi \"%1$s\"</string>
     <string name="label_changed_to">Changed volume to %1$d of %2$d</string>
     <string name="label_save_successful">Saved successfully!</string>
     <string name="label_location_title">Location Service</string>
@@ -22,7 +22,7 @@
     <string name="label_yes">Yes</string>
     <string name="label_no">No</string>
     <string name="label_delete">Delete</string>
-    <string name="label_delete_question">Do you really want to delete the WiFi network "%1$s"?</string>
+    <string name="label_delete_question">Do you really want to delete the WiFi network \"%1$s\"?</string>
     <string name="label_delete_success">Deleted successfully!</string>
     <string name="label_delete_error">Could not delete. Please try again!</string>
     <string name="label_stop_edit">Stop editing?</string>

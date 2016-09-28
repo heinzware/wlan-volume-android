@@ -25,16 +25,23 @@ public class ActivityHelper {
 
     public static void showNotification(Context context, WifiVolume wifiVolume, int maxVolume) {
         if (wifiVolume.isShowNotification()) {
-            Notification notification = new Notification.Builder(context)
+            Notification.Builder builder = new Notification.Builder(context)
                     .setContentTitle(String.format(Locale.getDefault(), context.getString(R.string.label_connected_to), wifiVolume.getSsid()))
-                    .setContentText(String.format(Locale.getDefault(), context.getString(R.string.label_changed_to), wifiVolume.getVolume(), maxVolume))
-                    .setSmallIcon(R.mipmap.ic_launcher) //TODO:change icon
-                    .build();
+                    .setContentText(String.format(Locale.getDefault(), context.getString(R.string.label_changed_to), wifiVolume.getVolume(), maxVolume));
+
+            float relativeVol = (float)wifiVolume.getVolume()/(float)maxVolume;
+            if (relativeVol == 0.0f) {
+                builder.setSmallIcon(R.drawable.ic_volume_mute_white_24dp);
+            } else if (relativeVol < .5f) {
+                builder.setSmallIcon(R.drawable.ic_volume_down_white_24dp);
+            } else {
+                builder.setSmallIcon(R.drawable.ic_volume_up_white_24dp);
+            }
 
             //notification.flags |= Notification.FLAG_NO_CLEAR;
 
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(NOTIFICATION_TAG, NOTIFICATION_ID, notification);
+            notificationManager.notify(NOTIFICATION_TAG, NOTIFICATION_ID, builder.build());
         }
     }
 

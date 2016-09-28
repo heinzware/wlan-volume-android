@@ -24,19 +24,23 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/ssidLabelTextView"
                 android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/textColor"
                 android:layout_centerVertical="true"
-                android:paddingRight="5dp"/>
+                android:paddingRight="5dp"
+                android:paddingEnd="5dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:id="@+id/ssidTextView"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@android:color/black"
+                android:textColor="@color/textColor"
                 android:layout_toEndOf="@id/ssidLabelTextView"
+                android:layout_toRightOf="@id/ssidLabelTextView"
                 android:gravity="end"/>
 
         </RelativeLayout>
@@ -54,7 +58,8 @@
             android:gravity="center_vertical"
             android:id="@+id/volumeLabelTextView"
             android:minHeight="?attr/listPreferredItemHeightSmall"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/textColor"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -65,9 +70,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@android:color/black"
+                android:textColor="@color/textColor"
                 android:id="@+id/volumeTextView"
                 android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"/>
 
             <SeekBar
@@ -76,8 +82,10 @@
                 android:max="10"
                 android:id="@+id/volumeSeekBar"
                 android:layout_toStartOf="@id/volumeTextView"
+                android:layout_toLeftOf="@id/volumeTextView"
                 android:layout_centerVertical="true"
-                android:layout_alignParentStart="true"/>
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"/>
         </RelativeLayout>
 
         <View
@@ -100,6 +108,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:id="@+id/notificationSwitch" />
 
@@ -108,10 +117,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/textColor"
                     android:id="@+id/notificationTextView"
                     android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
-                    android:layout_toStartOf="@id/notificationSwitch"/>
+                    android:layout_toStartOf="@id/notificationSwitch"
+                    android:layout_toLeftOf="@id/notificationSwitch"/>
 
             </RelativeLayout>
 
@@ -135,7 +147,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:id="@+id/commentLabelTextView"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/textColor"/>
 
         <EditText
             android:layout_width="match_parent"
@@ -143,7 +156,15 @@
             android:id="@+id/commentEditText"
             android:inputType="text"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@android:color/black"/>
+            android:textColor="@color/textColor"
+            android:maxLines="1"/>
+
+        <View
+            android:id="@+id/lineDivisor4"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/lineDivisorGrey"
+            android:layout_marginTop="15dp"/>
 
     </LinearLayout>
 
