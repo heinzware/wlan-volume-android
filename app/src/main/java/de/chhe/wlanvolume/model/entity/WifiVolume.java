@@ -4,7 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * This class represents a Wlan-Network and the volume which should be set when connected.
+ * This class represents a WiFi-Network and the settings to describe what should happen
+ * when the device is connected to it.
  */
 public class WifiVolume implements Parcelable {
 
@@ -12,6 +13,7 @@ public class WifiVolume implements Parcelable {
     private String ssid;
     private Integer volume;
     private boolean showNotification;
+    private boolean restore;
     private String comment;
 
     public WifiVolume(){}
@@ -56,6 +58,14 @@ public class WifiVolume implements Parcelable {
         this.comment = comment;
     }
 
+    public boolean isRestore() {
+        return restore;
+    }
+
+    public void setRestore(boolean restore) {
+        this.restore = restore;
+    }
+
 
     @Override
     public int describeContents() {
@@ -68,6 +78,7 @@ public class WifiVolume implements Parcelable {
         dest.writeString(this.ssid);
         dest.writeValue(this.volume);
         dest.writeByte(this.showNotification ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.restore ? (byte) 1 : (byte) 0);
         dest.writeString(this.comment);
     }
 
@@ -76,6 +87,7 @@ public class WifiVolume implements Parcelable {
         this.ssid = in.readString();
         this.volume = (Integer) in.readValue(Integer.class.getClassLoader());
         this.showNotification = in.readByte() != 0;
+        this.restore = in.readByte() != 0;
         this.comment = in.readString();
     }
 

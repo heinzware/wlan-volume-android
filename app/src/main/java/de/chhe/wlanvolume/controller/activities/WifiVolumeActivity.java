@@ -3,14 +3,18 @@ package de.chhe.wlanvolume.controller.activities;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.media.AudioManager;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.PersistableBundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +27,7 @@ import android.widget.Toast;
 import java.util.Locale;
 
 import de.chhe.wlanvolume.R;
+import de.chhe.wlanvolume.WifiConnectionReceiver;
 import de.chhe.wlanvolume.model.entity.WifiVolume;
 import de.chhe.wlanvolume.model.persistence.DatabaseHelper;
 
@@ -33,6 +38,7 @@ public class WifiVolumeActivity extends AppCompatActivity {
     private TextView ssidTextView;
     private TextView volumeTextView;
     private SeekBar volumeSeekBar;
+    private Switch restoreSwitch;
     private Switch notifySwitch;
     private EditText commentEditText;
 
@@ -52,18 +58,28 @@ public class WifiVolumeActivity extends AppCompatActivity {
         ssidTextView    = (TextView) findViewById(R.id.ssidTextView);
         volumeTextView  = (TextView) findViewById(R.id.volumeTextView);
         volumeSeekBar   = (SeekBar)  findViewById(R.id.volumeSeekBar);
+        restoreSwitch   = (Switch)   findViewById(R.id.restoreSwitch);
         notifySwitch    = (Switch)   findViewById(R.id.notificationSwitch);
         commentEditText = (EditText) findViewById(R.id.commentEditText);
         View notifyView = findViewById(R.id.notificationView);
+        View restoreView= findViewById(R.id.restoreView);
 
-        notifyView.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (editMode) {
-                    notifySwitch.setChecked(!notifySwitch.isChecked());
+                    if (view.getId() == R.id.notificationView) notifySwitch.setChecked(!notifySwitch.isChecked());
+                    if (view.getId() == R.id.restoreView) restoreSwitch.setChecked(!restoreSwitch.isChecked());
                 }
             }
-        });
+        };
+
+        notifyView.setOnClickListener(listener);
+        restoreView.setOnClickListener(listener);
+
+        restoreSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        notifySwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        volumeSeekBar.getThumb().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
 
         volumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -146,10 +162,10 @@ public class WifiVolumeActivity extends AppCompatActivity {
         outState.putInt(ActivityHelper.INTENT_EXTRA_MAX_VOLUME, maxVolume);
         outState.putBoolean(ActivityHelper.INTENT_EXTRA_NOTIFY, notifySwitch.isChecked());
         outState.putString(ActivityHelper.INTENT_EXTRA_COMMENT, commentEditText.getText().toString());
-        if (wifiVolume == null) {
-            outState.putString(ActivityHelper.INTENT_EXTRA_SSID, ssidTextView.getText().toString());
-            outState.putInt(ActivityHelper.INTENT_EXTRA_VOLUME, volumeSeekBar.getProgress());
-        } else {
+        outState.putBoolean(ActivityHelper.INTENT_EXTRA_RESTORE, restoreSwitch.isChecked());
+        outState.putString(ActivityHelper.INTENT_EXTRA_SSID, ssidTextView.getText().toString());
+        outState.putInt(ActivityHelper.INTENT_EXTRA_VOLUME, volumeSeekBar.getProgress());
+        if (wifiVolume != null) {
             outState.putParcelable(ActivityHelper.INTENT_EXTRA_WIFI_VOLUME, wifiVolume);
         }
         super.onSaveInstanceState(outState, outPersistentState);
@@ -169,6 +185,17 @@ public class WifiVolumeActivity extends AppCompatActivity {
             maxVolume = bundle.getInt(ActivityHelper.INTENT_EXTRA_MAX_VOLUME, 0);
             volumeSeekBar.setMax(maxVolume);
         }
+        if (bundle.containsKey(ActivityHelper.INTENT_EXTRA_WIFI_VOLUME)) {
+            wifiVolume = bundle.getParcelable(ActivityHelper.INTENT_EXTRA_WIFI_VOLUME);
+            if (wifiVolume != null) {
+                notifySwitch.setChecked(wifiVolume.isShowNotification());
+                ssidTextView.setText(wifiVolume.getSsid());
+                setTitle(wifiVolume.getSsid());
+                commentEditText.setText(wifiVolume.getComment());
+                restoreSwitch.setChecked(wifiVolume.isRestore());
+                volumeSeekBar.setProgress(wifiVolume.getVolume());
+            }
+        }
         if (bundle.containsKey(ActivityHelper.INTENT_EXTRA_NOTIFY)) {
             notifySwitch.setChecked(bundle.getBoolean(ActivityHelper.INTENT_EXTRA_NOTIFY));
         }
@@ -178,15 +205,9 @@ public class WifiVolumeActivity extends AppCompatActivity {
         if (bundle.containsKey(ActivityHelper.INTENT_EXTRA_SSID)) {
             ssidTextView.setText(bundle.getString(ActivityHelper.INTENT_EXTRA_SSID));
             setTitle(ssidTextView.getText());
-        } else if (bundle.containsKey(ActivityHelper.INTENT_EXTRA_WIFI_VOLUME)) {
-            wifiVolume = bundle.getParcelable(ActivityHelper.INTENT_EXTRA_WIFI_VOLUME);
-            if (wifiVolume != null) {
-                ssidTextView.setText(wifiVolume.getSsid());
-                setTitle(wifiVolume.getSsid());
-                volumeSeekBar.setProgress(wifiVolume.getVolume());
-                notifySwitch.setChecked(wifiVolume.isShowNotification());
-                commentEditText.setText(wifiVolume.getComment());
-            }
+        }
+        if(bundle.containsKey(ActivityHelper.INTENT_EXTRA_RESTORE)){
+            restoreSwitch.setChecked(bundle.getBoolean(ActivityHelper.INTENT_EXTRA_RESTORE));
         }
         applyEditMode();
     }
@@ -195,6 +216,7 @@ public class WifiVolumeActivity extends AppCompatActivity {
         if (editItem != null) editItem.setVisible(!editMode);
         if (saveItem != null) saveItem.setVisible(editMode);
         if (volumeSeekBar != null) volumeSeekBar.setEnabled(editMode);
+        if (restoreSwitch != null) restoreSwitch.setEnabled(editMode);
         if (notifySwitch != null) notifySwitch.setEnabled(editMode);
         if (commentEditText != null) commentEditText.setEnabled(editMode);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(!editMode);
@@ -205,6 +227,7 @@ public class WifiVolumeActivity extends AppCompatActivity {
         int volume = volumeSeekBar.getProgress();
         boolean showNotification = notifySwitch.isChecked();
         String comment = commentEditText.getText().toString();
+        boolean restore = restoreSwitch.isChecked();
 
         if(wifiVolume == null) {
             wifiVolume = new WifiVolume();
@@ -215,6 +238,7 @@ public class WifiVolumeActivity extends AppCompatActivity {
         wifiVolume.setVolume(volume);
         wifiVolume.setShowNotification(showNotification);
         wifiVolume.setComment(comment);
+        wifiVolume.setRestore(restore);
 
         new AsyncTask<Void, Void, Long>(){
             @Override
@@ -227,7 +251,9 @@ public class WifiVolumeActivity extends AppCompatActivity {
                 if (id == -1L) {
                     Toast.makeText(WifiVolumeActivity.this, R.string.label_save_error, Toast.LENGTH_LONG).show();
                 } else {
+                    Log.d(TAG, String.format(Locale.getDefault(), "Saved settings for WiFi network \"%s\".", wifiVolume.getSsid()));
                     editMode = false;
+                    wifiVolume.setId(id);
                     applyEditMode();
                     Toast.makeText(WifiVolumeActivity.this, R.string.label_save_successful, Toast.LENGTH_LONG).show();
                     checkConnected();
@@ -247,11 +273,23 @@ public class WifiVolumeActivity extends AppCompatActivity {
 
             if (ssid != null && ssid.equals(wifiVolume.getSsid())) {
                 AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                int old = audioManager.getStreamVolume(AudioManager.STREAM_RING);
                 audioManager.setStreamVolume(AudioManager.STREAM_RING, wifiVolume.getVolume(), AudioManager.FLAG_VIBRATE);
 
+                Log.d(TAG, String.format(Locale.getDefault(), "Connected to WiFi network \"%s\", changed volume from %d to %d.", wifiVolume.getSsid(), old, wifiVolume.getVolume()));
+
+                SharedPreferences prefs = getSharedPreferences(WifiConnectionReceiver.PREFERENCES_NAME, Context.MODE_PRIVATE);
+
+                if (!prefs.contains(WifiConnectionReceiver.PREFERENCE_KEY_CONNECTED_TO)) {
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString(WifiConnectionReceiver.PREFERENCE_KEY_CONNECTED_TO, ssid);
+                    editor.putInt(WifiConnectionReceiver.PREFERENCE_KEY_VOL_OLD, old);
+                    editor.commit();
+                    Log.d(TAG, String.format(Locale.getDefault(), "Connected to WiFi network \"%s\", saved preferences.", wifiVolume.getSsid()));
+
+                }
                 ActivityHelper.showNotification(this, wifiVolume, maxVolume);
             }
         }
-
     }
 }

@@ -12,4 +12,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="Theme.AppCompat.Light.Switch" parent="Theme.AppCompat.Light">
+        <item name="colorSwitchThumbNormal">@color/colorPrimaryDark</item>
+    </style>
+
 </resources>

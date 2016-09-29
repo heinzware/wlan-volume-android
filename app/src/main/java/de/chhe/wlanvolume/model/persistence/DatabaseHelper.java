@@ -21,7 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //general values of the database
     private static final String DATABASE_NAME = "wlan_volume.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     // Useful SQL query parts
     static final String TEXT_TYPE           = " TEXT";
@@ -52,7 +52,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion == 1 && newVersion == 2) {
+        if (oldVersion == 1) {
             Log.d(TAG, String.format(Locale.getDefault(), "Upgrading database from version %d to %d.", oldVersion, newVersion));
             try {
                 db.beginTransaction();
@@ -62,6 +62,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.execSQL(addCommentQuery);
                 String setNotifyFalse = "UPDATE " + WifiVolumeContract.WifiVolumeTable.TABLE_NAME + " SET " + WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_NOTIFY + " = 0;";
                 db.execSQL(setNotifyFalse);
+                oldVersion = 2;
+                db.setTransactionSuccessful();
+            } catch (Exception e) {
+                Log.d(TAG, String.format(Locale.getDefault(), "Exception while upgrading database from version %d to %d.\n Exception is:\n%s", oldVersion, newVersion, e.getMessage()));
+            }
+            db.endTransaction();
+        }
+        if (oldVersion == 2) {
+            Log.d(TAG, String.format(Locale.getDefault(), "Upgrading database from version %d to %d.", oldVersion, newVersion));
+            try {
+                db.beginTransaction();
+                String addRestoreQuery = "ALTER TABLE " + WifiVolumeContract.WifiVolumeTable.TABLE_NAME + " ADD COLUMN " + WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_RESTORE + INTEGER_TYPE + ";";
+                db.execSQL(addRestoreQuery);
+                String setRestoreFalse = "UPDATE " + WifiVolumeContract.WifiVolumeTable.TABLE_NAME + " SET " + WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_RESTORE + " = 0;";
+                db.execSQL(setRestoreFalse);
                 db.setTransactionSuccessful();
             } catch (Exception e) {
                 Log.d(TAG, String.format(Locale.getDefault(), "Exception while upgrading database from version %d to %d.\n Exception is:\n%s", oldVersion, newVersion, e.getMessage()));
@@ -71,7 +86,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void clearDatabase(){
-        try (SQLiteDatabase db = getWritableDatabase()) {
+        try {
+            SQLiteDatabase db = getWritableDatabase();
             //drop all tables
             db.execSQL(WifiVolumeContract.SQL_DELETE_WLAN_VOLUME_TABLE);
             //recreate all tables
@@ -86,12 +102,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
 
     public long saveWifiVolume(WifiVolume wifiVolume) {
-        try (SQLiteDatabase db = getWritableDatabase()) {
+        try {
 
+            SQLiteDatabase db = getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_SSID, wifiVolume.getSsid());
             values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_VOLUME, wifiVolume.getVolume());
             values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_NOTIFY, wifiVolume.isShowNotification() ? 1 : 0);
+            values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_RESTORE, wifiVolume.isRestore() ? 1 : 0);
             if (wifiVolume.getComment() != null) values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_COMMENT, wifiVolume.getComment());
 
             long result;
@@ -131,13 +149,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = getReadableDatabase();
 
-        try (Cursor cursor = db.query(WifiVolumeContract.WifiVolumeTable.TABLE_NAME, // table name
-                WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS,                      // columns to return
-                where,                                                               // columns for WHERE
-                whereValues,                                                         // values for WHERE
-                null,                                                                // groups
-                null,                                                                // filters
-                null)) {                                                             // sort order
+        try {
+
+            Cursor cursor = db.query(WifiVolumeContract.WifiVolumeTable.TABLE_NAME,
+                    WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS,
+                    where,
+                    whereValues,
+                    null,
+                    null,
+                    null);
 
             if (cursor.getCount() == 1) {
 
@@ -159,7 +179,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @NonNull
     public ArrayList<WifiVolume> getAllWifiVolumes() {
-        try(SQLiteDatabase db = getReadableDatabase()) {
+        try {
+
+            SQLiteDatabase db = getReadableDatabase();
 
             String sortOrder = WifiVolumeContract.WifiVolumeTable._ID + " ASC";
 
@@ -194,12 +216,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int volumeCol   = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[2]);
         int notifyCol   = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[3]);
         int commentCol  = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[4]);
+        int restoreCol  = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[5]);
 
         long id         = cursor.getLong(idCol);
         String ssid     = cursor.getString(ssidCol);
         int volume      = cursor.getInt(volumeCol);
         boolean notify  = cursor.getInt(notifyCol) > 0;
         String comment  = cursor.getString(commentCol);
+        boolean restore = cursor.getInt(restoreCol) > 0;
 
         WifiVolume wifiVolume = new WifiVolume();
         wifiVolume.setId(id);
@@ -207,12 +231,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         wifiVolume.setVolume(volume);
         wifiVolume.setShowNotification(notify);
         wifiVolume.setComment(comment);
+        wifiVolume.setRestore(restore);
 
         return wifiVolume;
     }
 
     public boolean deleteWifiVolume(@NonNull WifiVolume wifiVolume) {
-        try(SQLiteDatabase db = getWritableDatabase()) {
+        try {
+
+            SQLiteDatabase db = getWritableDatabase();
 
             String where = WifiVolumeContract.WifiVolumeTable._ID + " = ?";
 

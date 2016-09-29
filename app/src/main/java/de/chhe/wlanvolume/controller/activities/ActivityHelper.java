@@ -19,6 +19,7 @@ public class ActivityHelper {
     static final String INTENT_EXTRA_VOLUME      = "intent.extra.volume";
     static final String INTENT_EXTRA_NOTIFY      = "intent.extra.notify";
     static final String INTENT_EXTRA_COMMENT     = "intent.extra.comment";
+    static final String INTENT_EXTRA_RESTORE     = "intent.extra.restore";
 
     public static final String NOTIFICATION_TAG = "WifiConnectionReceiver.Notification.Tag";
     public static final int NOTIFICATION_ID     = 42;

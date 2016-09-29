@@ -31,5 +31,6 @@
     <string name="label_keep_editing">Keep editing</string>
     <string name="label_show_notification">Show Notification:</string>
     <string name="label_comment">Comment:</string>
+    <string name="label_restore">Restore old value:</string>
 
 </resources>

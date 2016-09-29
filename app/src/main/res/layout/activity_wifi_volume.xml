@@ -85,7 +85,7 @@
                 android:layout_toLeftOf="@id/volumeTextView"
                 android:layout_centerVertical="true"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"/>
+                android:layout_alignParentLeft="true" />
         </RelativeLayout>
 
         <View
@@ -99,6 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -110,7 +111,52 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:id="@+id/notificationSwitch" />
+                    android:id="@+id/restoreSwitch"/>
+
+                <TextView
+                    android:text="@string/label_restore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/textColor"
+                    android:id="@+id/restoreTextView"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/restoreSwitch"
+                    android:layout_toLeftOf="@id/restoreSwitch"/>
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/restoreView"/>
+
+        </FrameLayout>
+
+        <View
+            android:id="@+id/lineDivisor5"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/lineDivisorGrey"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/listPreferredItemHeight">
+
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:id="@+id/notificationSwitch"/>
 
                 <TextView
                     android:text="@string/label_show_notification"
@@ -124,7 +170,6 @@
                     android:layout_centerVertical="true"
                     android:layout_toStartOf="@id/notificationSwitch"
                     android:layout_toLeftOf="@id/notificationSwitch"/>
-
             </RelativeLayout>
 
             <View
