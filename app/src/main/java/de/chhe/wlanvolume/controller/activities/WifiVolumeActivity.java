@@ -144,12 +144,7 @@ public class WifiVolumeActivity extends AppCompatActivity {
                             }
                         }
                     })
-                    .setNegativeButton(R.string.label_keep_editing, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int i) {
-                            dialog.dismiss();
-                        }
-                    })
+                    .setNegativeButton(R.string.label_keep_editing, ActivityHelper.dialogDismissListener)
                     .show();
         } else {
             super.onBackPressed();

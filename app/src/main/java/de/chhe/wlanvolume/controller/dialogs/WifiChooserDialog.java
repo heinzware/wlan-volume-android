@@ -2,7 +2,6 @@ package de.chhe.wlanvolume.controller.dialogs;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.wifi.ScanResult;
 
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import java.util.List;
 import de.chhe.wlanvolume.R;
 import de.chhe.wlanvolume.controller.activities.ActivityHelper;
 import de.chhe.wlanvolume.controller.activities.MainActivity;
-import de.chhe.wlanvolume.controller.activities.WifiVolumeActivity;
 
 
 public class WifiChooserDialog extends AlertDialog.Builder {
@@ -41,11 +39,7 @@ public class WifiChooserDialog extends AlertDialog.Builder {
                     mainActivity.startActivity(ActivityHelper.createWifiVolumeIntent(mainActivity, true, mainActivity.getMaxVolume(), null, scanResults.get(selectedPosition).SSID));
                 }
             });
-            setNegativeButton(R.string.label_cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    dialog.dismiss();
-                }
-            });
+            setNegativeButton(R.string.label_cancel, ActivityHelper.dialogDismissListener);
         }
     }
 

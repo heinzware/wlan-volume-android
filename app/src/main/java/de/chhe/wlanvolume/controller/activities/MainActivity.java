@@ -19,10 +19,10 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -30,11 +30,11 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import de.chhe.wlanvolume.R;
 import de.chhe.wlanvolume.controller.dialogs.WifiChooserDialog;
 import de.chhe.wlanvolume.controller.WifiVolumeListAdapter;
+import de.chhe.wlanvolume.controller.dialogs.WifiDeleteDialog;
 import de.chhe.wlanvolume.controller.dialogs.WifiScanDialog;
 import de.chhe.wlanvolume.model.entity.WifiVolume;
 import de.chhe.wlanvolume.model.persistence.DatabaseHelper;
@@ -108,11 +108,15 @@ public class MainActivity extends AppCompatActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         if (v.getId() == R.id.wlanListView) {
+
+            //create header
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-            View headerView = ((LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.context_menu_header, null);
+            View headerView = getLayoutInflater().inflate(R.layout.context_menu_header, (ViewGroup) findViewById(android.R.id.content), false);
             TextView headerTitle = (TextView)headerView.findViewById(R.id.headerTitle);
             headerTitle.setText(((WifiVolume) listAdapter.getItem(info.position)).getSsid());
             menu.setHeaderView(headerView);
+
+            //add items
             menu.add(Menu.NONE, ITEM_ID_EDIT, 1, R.string.label_edit);
             menu.add(Menu.NONE, ITEM_ID_DELETE, 2, R.string.label_delete);
         }
@@ -126,36 +130,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(ActivityHelper.createWifiVolumeIntent(this, true, maxVolume, (WifiVolume)listAdapter.getItem(info.position), null));
                 return true;
             case ITEM_ID_DELETE:
-                final WifiVolume wifiVolume = (WifiVolume)listAdapter.getItem(info.position);
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.label_delete)
-                        .setMessage(String.format(Locale.getDefault(), getString(R.string.label_delete_question), wifiVolume.getSsid()))
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.label_yes, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int i) {
-                                        new AsyncTask<Void, Void, Boolean>(){
-                                            @Override
-                                            protected Boolean doInBackground(Void... voids) {
-                                                return DatabaseHelper.getInstance(MainActivity.this).deleteWifiVolume(wifiVolume);
-                                            }
-                                            @Override
-                                            protected void onPostExecute(Boolean success) {
-                                                int msg = success ? R.string.label_delete_success : R.string.label_delete_error;
-                                                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
-                                                if (success) {
-                                                    loadList();
-                                                }
-                                            }
-                                        }.execute();
-                                    }
-                                })
-                        .setNegativeButton(R.string.label_no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int i) {
-                                dialog.dismiss();
-                            }
-                        }).show();
+                WifiVolume wifiVolume = (WifiVolume)listAdapter.getItem(info.position);
+                new WifiDeleteDialog(wifiVolume, this).show();
                 return true;
         }
         return super.onContextItemSelected(item);
@@ -174,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    private void loadList(){
+    public void loadList(){
         if (listAdapter != null) {
             new AsyncTask<Void, Void, ArrayList<WifiVolume>>(){
 
@@ -216,12 +192,7 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(intent);
                             }
                         })
-                        .setNegativeButton(R.string.label_no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int i) {
-                                dialog.dismiss();
-                            }
-                        })
+                        .setNegativeButton(R.string.label_no, ActivityHelper.dialogDismissListener)
                         .show();
                 return;
             }
@@ -232,8 +203,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (!wifiManager.isWifiEnabled()) {
-            Toast.makeText(getApplicationContext(), R.string.label_enabling_wifi, Toast.LENGTH_LONG).show();
-            wifiManager.setWifiEnabled(true);
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.label_wifi_disabled)
+                    .setMessage(R.string.label_wifi_disabled_question)
+                    .setPositiveButton(R.string.label_yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int i) {
+                            dialog.dismiss();
+                            wifiManager.setWifiEnabled(true);
+                            scanWifi();
+                        }
+                    })
+                    .setNegativeButton(R.string.label_no, ActivityHelper.dialogDismissListener)
+                    .show();
         }
 
         registerReceiver(wifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
@@ -252,8 +234,7 @@ public class MainActivity extends AppCompatActivity {
                 scanResults.add(scanResult);
             }
         }
-        WifiChooserDialog wifiChooserDialog = new WifiChooserDialog(this, scanResults);
-        wifiChooserDialog.show();
+        new WifiChooserDialog(this, scanResults).show();
     }
 
     public void unregisterWifiScanReceiver(){

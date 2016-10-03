@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.graphics.drawable.AnimationDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import de.chhe.wlanvolume.R;
@@ -28,7 +29,7 @@ public class WifiScanDialog extends AlertDialog.Builder {
     }
 
     private void setContentView(MainActivity mainActivity) {
-        View dialogView = LayoutInflater.from(mainActivity).inflate(R.layout.dialog_wifi_scan, null);
+        View dialogView = LayoutInflater.from(mainActivity).inflate(R.layout.dialog_wifi_scan, (ViewGroup) mainActivity.findViewById(android.R.id.content), false);
         ImageView imageView = (ImageView) dialogView.findViewById(R.id.imageView);
         imageView.setBackgroundResource(R.drawable.wifi_scan_animation);
         AnimationDrawable animation = (AnimationDrawable) imageView.getBackground();

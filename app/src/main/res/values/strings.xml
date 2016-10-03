@@ -13,7 +13,7 @@
     <string name="label_wifi_no_result">No (new) WiFi networks found!</string>
     <string name="label_scanning_wifi">Scanning WiFi networks</string>
     <string name="label_scanning">Scanning&#8230;</string>
-    <string name="label_save_error">Could not save. Pleas try again!</string>
+    <string name="label_save_error">Could not save. Please try again!</string>
     <string name="label_connected_to">Connected to WiFi \"%1$s\"</string>
     <string name="label_changed_to">Changed volume to %1$d of %2$d</string>
     <string name="label_save_successful">Saved successfully!</string>
@@ -32,5 +32,7 @@
     <string name="label_show_notification">Show Notification:</string>
     <string name="label_comment">Comment:</string>
     <string name="label_restore">Restore old value:</string>
+    <string name="label_wifi_disabled">WiFi disabled</string>
+    <string name="label_wifi_disabled_question">WiFi is disabled. \n\n Would you like to enable WiFi now?</string>
 
 </resources>

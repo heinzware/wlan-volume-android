@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -42,7 +41,7 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
 
                 String ssid = ActivityHelper.trimSsid(networkInfo.getExtraInfo());
 
-                if (!prefs.contains(PREFERENCE_KEY_CONNECTED) || !prefs.getBoolean(PREFERENCE_KEY_CONNECTED,false)) {
+                if (ssid != null && (!prefs.contains(PREFERENCE_KEY_CONNECTED) || !prefs.getBoolean(PREFERENCE_KEY_CONNECTED,false))) {
 
                     //save in preferences that the device is connected
                     SharedPreferences.Editor editor = prefs.edit();
@@ -50,7 +49,7 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
                     editor.commit();
 
                     //start task to check the network and if it's wanted, to change the volume
-                    new WifiConnectedTask(ssid, context).execute();
+                    new WifiConnectedTask(ssid, context, editor).execute();
                 }
             } else {
 
@@ -104,12 +103,14 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
 
         private String ssid;
         private Context context;
+        private SharedPreferences.Editor editor;
         private WifiVolume wifiVolume;
         private int maxVolume;
 
-        WifiConnectedTask(@NonNull String ssid, @NonNull Context context) {
+        WifiConnectedTask(@NonNull String ssid, @NonNull Context context, @NonNull SharedPreferences.Editor editor) {
             this.ssid = ssid;
             this.context = context;
+            this.editor = editor;
         }
 
         @Override
@@ -128,8 +129,6 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
                 audioManager.setStreamVolume(AudioManager.STREAM_RING, wifiVolume.getVolume(), AudioManager.FLAG_VIBRATE);
 
                 //save the old volume so we can restore it on disconnect
-                SharedPreferences prefs = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = prefs.edit();
                 editor.putInt(PREFERENCE_KEY_VOL_OLD, oldVolume);
                 editor.putString(PREFERENCE_KEY_CONNECTED_TO, ssid);
                 editor.commit();

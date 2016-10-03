@@ -3,7 +3,10 @@ package de.chhe.wlanvolume.controller.activities;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.Locale;
 
@@ -24,12 +27,31 @@ public class ActivityHelper {
     public static final String NOTIFICATION_TAG = "WifiConnectionReceiver.Notification.Tag";
     public static final int NOTIFICATION_ID     = 42;
 
-    public static void showNotification(Context context, WifiVolume wifiVolume, int maxVolume) {
+    public static DialogInterface.OnClickListener dialogDismissListener= new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int i) {
+            dialog.dismiss();
+        }
+    };
+
+    /**
+     * Static method to show a notification when the ringer volume was changed.
+     * <p>
+     * <b>Note:</b> The method checks if a notification should be shown using the <b>restore</b> field of the {@link WifiVolume} parameter.
+     *
+     * @param context Context used to show the notification.
+     * @param wifiVolume {@link WifiVolume} object specifying the WiFi network and the new ringer volume.
+     * @param maxVolume Maximum ringer volume of the device.
+     */
+    public static void showNotification(@NonNull Context context, @NonNull WifiVolume wifiVolume, int maxVolume) {
         if (wifiVolume.isShowNotification()) {
+
+            //create notification
             Notification.Builder builder = new Notification.Builder(context)
                     .setContentTitle(String.format(Locale.getDefault(), context.getString(R.string.label_connected_to), wifiVolume.getSsid()))
                     .setContentText(String.format(Locale.getDefault(), context.getString(R.string.label_changed_to), wifiVolume.getVolume(), maxVolume));
 
+            //select icon by volume
             float relativeVol = (float)wifiVolume.getVolume()/(float)maxVolume;
             if (relativeVol == 0.0f) {
                 builder.setSmallIcon(R.drawable.ic_volume_mute_white_24dp);
@@ -39,21 +61,40 @@ public class ActivityHelper {
                 builder.setSmallIcon(R.drawable.ic_volume_up_white_24dp);
             }
 
-            //notification.flags |= Notification.FLAG_NO_CLEAR;
-
+            //show notification
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(NOTIFICATION_TAG, NOTIFICATION_ID, builder.build());
         }
     }
 
-    public static String trimSsid(String ssid) {
+    /**
+     * Static method to remove quotation marks surrounding a SSID.
+     *
+     * @param ssid SSID that might be surrounded by quotation marks
+     * @return SSID without quotation marks
+     */
+    @Nullable
+    public static String trimSsid(@Nullable String ssid) {
         if (ssid != null && ssid.startsWith("\"") && ssid.endsWith("\"")) {
             ssid = ssid.substring(1, ssid.length() - 1);
         }
         return ssid;
     }
 
-    public static Intent createWifiVolumeIntent(Context context, boolean editMode, int maxVolume, WifiVolume wifiVolume, String ssid) {
+    /**
+     * Static method to create an {@link Intent} to start a {@link WifiVolumeActivity} with the given extras.
+     * <p>
+     * <b>Note</b>: Either the  {@link WifiVolume} parameter or the SSID parameter must be nonnull.
+     *
+     * @param context Context used to start the {@link WifiVolumeActivity}.
+     * @param editMode Extra, specifying if the user can edit the values in the opened {@link WifiVolumeActivity}.
+     * @param maxVolume Extra, specifying the maximum ringer volume of the device.
+     * @param wifiVolume The {@link WifiVolume} object that should be displayed.
+     * @param ssid The SSID that should be displayed.
+     * @return Intent that can be used to start a {@link WifiVolumeActivity} with the given extras.
+     */
+    @NonNull
+    public static Intent createWifiVolumeIntent(@NonNull Context context, boolean editMode, int maxVolume, WifiVolume wifiVolume, String ssid) {
         Intent intent = new Intent(context, WifiVolumeActivity.class);
         if (ssid != null)       intent.putExtra(INTENT_EXTRA_SSID,          ssid);
         if (wifiVolume != null) intent.putExtra(INTENT_EXTRA_WIFI_VOLUME,   wifiVolume);
