@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
@@ -48,6 +49,7 @@ public class WifiVolumeActivity extends AppCompatActivity {
     private boolean editMode;
     private WifiVolume wifiVolume;
     private int maxVolume;
+    private Drawable standardThumb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +81,7 @@ public class WifiVolumeActivity extends AppCompatActivity {
 
         restoreSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
         notifySwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-        volumeSeekBar.getThumb().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
+        //volumeSeekBar.getThumb().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
 
         volumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -210,7 +212,19 @@ public class WifiVolumeActivity extends AppCompatActivity {
     private void applyEditMode() {
         if (editItem != null) editItem.setVisible(!editMode);
         if (saveItem != null) saveItem.setVisible(editMode);
-        if (volumeSeekBar != null) volumeSeekBar.setEnabled(editMode);
+        if (volumeSeekBar != null) {
+            if (editMode) {
+                if(standardThumb != null) {
+                    volumeSeekBar.setThumb(standardThumb);
+                }
+            } else {
+                standardThumb = volumeSeekBar.getThumb();
+                volumeSeekBar.setThumb(ContextCompat.getDrawable(this, R.drawable.scrubber_control_on_mtrl_alpha));
+                volumeSeekBar.getThumb().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+
+            }
+            volumeSeekBar.setEnabled(editMode);
+        }
         if (restoreSwitch != null) restoreSwitch.setEnabled(editMode);
         if (notifySwitch != null) notifySwitch.setEnabled(editMode);
         if (commentEditText != null) commentEditText.setEnabled(editMode);
