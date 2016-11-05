@@ -34,12 +34,16 @@
                 <action android:name="android.net.wifi.STATE_CHANGE" />
             </intent-filter>
         </receiver>
-        <receiver
-            android:name=".VolumeChangedReceiver">
+        <receiver android:name=".VolumeChangedReceiver">
             <intent-filter>
                 <action android:name="android.media.VOLUME_CHANGED_ACTION" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".controller.activities.AboutActivity"
+            android:parentActivityName=".controller.activities.MainActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

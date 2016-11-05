@@ -26,7 +26,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,6 +98,10 @@ public class MainActivity extends AppCompatActivity {
         switch(item.getItemId()){
             case R.id.action_add:
                 scanWifi();
+                return true;
+            case R.id.action_about:
+                Intent aboutIntent = new Intent(this, AboutActivity.class);
+                startActivity(aboutIntent);
                 return true;
         }
         return super.onOptionsItemSelected(item);

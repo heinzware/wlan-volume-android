@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/label_preferences_category_about">
+
+        <Preference
+            android:key="preferences_version"
+            android:title="@string/label_preferences_version" />
+
+        <Preference
+            android:key="preference_developer"
+            android:title="@string/label_preferences_developer"
+            android:summary="@string/label_me"/>
+
+        <Preference
+            android:key="preference_thanks"
+            android:title="@string/label_preferences_icons_by"
+            android:summary="@string/label_icons_by"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
