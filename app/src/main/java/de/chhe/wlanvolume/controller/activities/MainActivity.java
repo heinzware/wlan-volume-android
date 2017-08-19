@@ -1,23 +1,15 @@
 package de.chhe.wlanvolume.controller.activities;
 
-import android.Manifest;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.media.AudioManager;
-import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,24 +23,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.chhe.wlanvolume.R;
-import de.chhe.wlanvolume.controller.dialogs.WifiChooserDialog;
 import de.chhe.wlanvolume.controller.WifiVolumeListAdapter;
+import de.chhe.wlanvolume.controller.dialogs.WifiChooserDialog;
 import de.chhe.wlanvolume.controller.dialogs.WifiDeleteDialog;
-import de.chhe.wlanvolume.controller.dialogs.WifiScanDialog;
 import de.chhe.wlanvolume.model.entity.WifiVolume;
 import de.chhe.wlanvolume.model.persistence.DatabaseHelper;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 0;
     private static final int ITEM_ID_EDIT   = 1;
     private static final int ITEM_ID_DELETE = 2;
 
     private WifiVolumeListAdapter listAdapter;
 
     private WifiManager wifiManager;
-    private BroadcastReceiver wifiScanReceiver;
-    private AlertDialog wifiScanDialog;
 
     private int maxVolume;
 
@@ -72,13 +60,6 @@ public class MainActivity extends AppCompatActivity {
             });
             registerForContextMenu(wifiListView);
         }
-
-        wifiScanReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                showScanResults();
-            }
-        };
     }
 
     @Override
@@ -97,7 +78,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.action_add:
-                scanWifi();
+                //scanWifi();
+                addWifi();
                 return true;
             case R.id.action_about:
                 Intent aboutIntent = new Intent(this, AboutActivity.class);
@@ -140,19 +122,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onContextItemSelected(item);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        for (int grantResult : grantResults) {
-            if (grantResult != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-        }
-        if (requestCode == REQUEST_CODE_ACCESS_COARSE_LOCATION) {
-            scanWifi();
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
     public void loadList(){
         if (listAdapter != null) {
             new AsyncTask<Void, Void, ArrayList<WifiVolume>>(){
@@ -172,37 +141,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void scanWifi() {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_ACCESS_COARSE_LOCATION);
-                return;
-            }
-
-            LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
-            if (locationManager.getProviders(true).size() == 0) {
-                new AlertDialog.Builder(this, R.style.AppTheme_Dialog)
-                        .setTitle(R.string.label_location_title)
-                        .setMessage(R.string.label_location_message)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.label_yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int i) {
-                                dialog.dismiss();
-                                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                startActivity(intent);
-                            }
-                        })
-                        .setNegativeButton(R.string.label_no, ActivityHelper.dialogDismissListener)
-                        .show();
-                return;
-            }
-        }
-
+    private void addWifi() {
         if (wifiManager == null) {
-            wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+            wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         }
 
         if (!wifiManager.isWifiEnabled()) {
@@ -214,34 +155,22 @@ public class MainActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int i) {
                             dialog.dismiss();
                             wifiManager.setWifiEnabled(true);
-                            scanWifi();
+                            addWifi();
                         }
                     })
                     .setNegativeButton(R.string.label_no, ActivityHelper.dialogDismissListener)
                     .show();
-        }
+        } else {
 
-        registerReceiver(wifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        wifiScanDialog = new WifiScanDialog(this).show();
-        wifiManager.startScan();
-
-    }
-
-    private void showScanResults() {
-        wifiScanDialog.dismiss();
-        unregisterWifiScanReceiver();
-        List<ScanResult> scanResultsTmp = wifiManager.getScanResults();
-        List<ScanResult> scanResults = new ArrayList<>();
-        for (ScanResult scanResult : scanResultsTmp) {
-            if (!listAdapter.containsSsid(scanResult.SSID)) {
-                scanResults.add(scanResult);
+            List<WifiConfiguration> knownNetworksTmp = wifiManager.getConfiguredNetworks();
+            List<WifiConfiguration> knownNetworks = new ArrayList<>();
+            for (WifiConfiguration wifiConfig : knownNetworksTmp) {
+                if (!listAdapter.containsSsid(wifiConfig.SSID)) {
+                    knownNetworks.add(wifiConfig);
+                }
             }
+            new WifiChooserDialog(this, knownNetworks).show();
         }
-        new WifiChooserDialog(this, scanResults).show();
-    }
-
-    public void unregisterWifiScanReceiver(){
-        unregisterReceiver(wifiScanReceiver);
     }
 
     public int getMaxVolume(){

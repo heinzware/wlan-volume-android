@@ -3,6 +3,7 @@ package de.chhe.wlanvolume.controller.dialogs;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +15,10 @@ import de.chhe.wlanvolume.controller.activities.MainActivity;
 
 public class WifiChooserDialog extends AlertDialog.Builder {
 
-    private List<ScanResult> scanResults;
-
-    public WifiChooserDialog(final MainActivity mainActivity, final List<ScanResult> scanResults) {
+    public WifiChooserDialog(final MainActivity mainActivity, final List<WifiConfiguration> knownNetworks) {
         super(mainActivity, R.style.AppTheme_Dialog);
 
-        if (scanResults == null || scanResults.size() == 0) {
+        if (knownNetworks == null || knownNetworks.size() == 0) {
             setTitle(R.string.label_wifi_results);
             setMessage(R.string.label_wifi_no_result);
             setPositiveButton(R.string.label_ok, new DialogInterface.OnClickListener() {
@@ -28,32 +27,28 @@ public class WifiChooserDialog extends AlertDialog.Builder {
                 }
             });
         } else {
-            this.scanResults = scanResults;
             setTitle(R.string.label_choose_wifi);
             setCancelable(false);
-            setSingleChoiceItems(getSsids(), 0, null);
+            final CharSequence[] ssids = getSsids(knownNetworks);
+            setSingleChoiceItems(ssids, 0, null);
             setPositiveButton(R.string.label_ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     dialog.dismiss();
-                    int selectedPosition = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
-                    mainActivity.startActivity(ActivityHelper.createWifiVolumeIntent(mainActivity, true, mainActivity.getMaxVolume(), null, scanResults.get(selectedPosition).SSID));
+                    int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+                    mainActivity.startActivity(ActivityHelper.createWifiVolumeIntent(mainActivity, true, mainActivity.getMaxVolume(), null, ssids[position].toString()));
                 }
             });
             setNegativeButton(R.string.label_cancel, ActivityHelper.dialogDismissListener);
         }
     }
 
-    private CharSequence[] getSsids() {
+    private CharSequence[] getSsids(List<WifiConfiguration> knownNetworks) {
         List<CharSequence> ssidList = new ArrayList<>();
-        List<ScanResult> remove = new ArrayList<>();
-        for (ScanResult scanResult : scanResults) {
-            if (!ssidList.contains(scanResult.SSID)) {
-                ssidList.add(scanResult.SSID);
-            } else {
-                remove.add(scanResult);
+        for (WifiConfiguration config : knownNetworks) {
+            if (!ssidList.contains(config.SSID)) {
+                ssidList.add(config.SSID);
             }
         }
-        scanResults.removeAll(remove);
         return ssidList.toArray(new CharSequence[ssidList.size()]);
     }
 

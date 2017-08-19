@@ -273,7 +273,7 @@ public class WifiVolumeActivity extends AppCompatActivity {
 
     private void checkConnected() {
 
-        WifiManager wifiManager = (WifiManager)getSystemService(WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager)getApplicationContext().getSystemService(WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 
         if (wifiInfo.getSupplicantState() == SupplicantState.COMPLETED) {
