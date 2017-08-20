@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
+import android.view.KeyEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +36,21 @@ public class WifiChooserDialog extends AlertDialog.Builder {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     dialog.dismiss();
                     int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                    mainActivity.startActivity(ActivityHelper.createWifiVolumeIntent(mainActivity, true, mainActivity.getMaxVolume(), null, ssids[position].toString()));
+                    String ssid = ActivityHelper.trimSsid(ssids[position].toString());
+                    mainActivity.startActivity(ActivityHelper.createWifiVolumeIntent(mainActivity, true, mainActivity.getMaxVolume(), null, ssid));
                 }
             });
             setNegativeButton(R.string.label_cancel, ActivityHelper.dialogDismissListener);
+            setOnKeyListener(new DialogInterface.OnKeyListener() {
+                @Override
+                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent keyEvent) {
+                    if (keyCode == KeyEvent.KEYCODE_BACK) {
+                        dialog.dismiss();
+                        return true;
+                    }
+                    return false;
+                }
+            });
         }
     }
 
