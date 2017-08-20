@@ -16,7 +16,14 @@ class WifiVolumeContract {
         static final String COLUMN_NAME_NOTIFY   = "notify";
         static final String COLUMN_NAME_COMMENT  = "comment";
         static final String COLUMN_NAME_RESTORE  = "restore";
-        static final String[] ALL_COLUMNS        = {_ID, COLUMN_NAME_SSID, COLUMN_NAME_VOLUME, COLUMN_NAME_NOTIFY, COLUMN_NAME_COMMENT, COLUMN_NAME_RESTORE};
+        static final String COLUMN_NAME_END_DND  = "end_dnd";
+        static final String[] ALL_COLUMNS        = {_ID,
+                COLUMN_NAME_SSID,
+                COLUMN_NAME_VOLUME,
+                COLUMN_NAME_NOTIFY,
+                COLUMN_NAME_COMMENT,
+                COLUMN_NAME_RESTORE,
+                COLUMN_NAME_END_DND};
         //constraint names
         private static final String CONSTRAINT_VOLUME   = "volume_constraint";
     }
@@ -29,6 +36,7 @@ class WifiVolumeContract {
             + WifiVolumeTable.COLUMN_NAME_NOTIFY + DatabaseHelper.INTEGER_TYPE + DatabaseHelper.COMMA_SEP
             + WifiVolumeTable.COLUMN_NAME_COMMENT + DatabaseHelper.TEXT_TYPE + DatabaseHelper.COMMA_SEP
             + WifiVolumeTable.COLUMN_NAME_RESTORE + DatabaseHelper.INTEGER_TYPE + DatabaseHelper.COMMA_SEP
+            + WifiVolumeTable.COLUMN_NAME_END_DND + DatabaseHelper.INTEGER_TYPE + DatabaseHelper.COMMA_SEP
             + "CONSTRAINT " + WifiVolumeTable.CONSTRAINT_VOLUME + " CHECK ("
             + WifiVolumeTable.COLUMN_NAME_VOLUME +  " <= 100 AND " + WifiVolumeTable.COLUMN_NAME_VOLUME + " >= 0));";
 

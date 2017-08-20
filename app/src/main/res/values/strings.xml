@@ -33,7 +33,7 @@
     <string name="label_comment">Comment:</string>
     <string name="label_restore">Restore old value:</string>
     <string name="label_wifi_disabled">WiFi disabled</string>
-    <string name="label_wifi_disabled_question">WiFi is disabled, but it has to be enabled to receive the known networks. \n\n Would you like to enable WiFi now?</string>
+    <string name="label_wifi_disabled_question">WiFi is disabled, but it has to be enabled to receive the known networks. \n\nWould you like to enable WiFi now?</string>
     <string name="label_about">About</string>
     <string name="label_preferences_developer">Developed by:</string>
     <string name="label_preferences_version">Version:</string>
@@ -42,5 +42,8 @@
     <string name="label_icons_by">Material icons (https://material.io/icons/)</string>
     <string name="label_preferences_icons_by">Icons by:</string>
     <string name="label_version_default">Could not load version.</string>
-
+    <string name="label_notification_policy">Notification Policy</string>
+    <string name="label_notification_policy_question">Notification policy access is not granted for this Application.\nThis permission is needed to change the \"Do not Disturb\" mode.\nPlease grant this permission now.</string>
+    <string name="label_end_dnd_mode">Disable \"Do not Disturb\":</string>
+    <string name ="label_no_notify_permission">Couldn\'t change volume because the access notification policy permission is not granted.</string>
 </resources>

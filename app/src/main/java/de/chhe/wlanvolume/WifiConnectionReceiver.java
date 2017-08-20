@@ -1,6 +1,8 @@
 package de.chhe.wlanvolume;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,12 +11,15 @@ import android.media.AudioManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import java.util.Locale;
 
 import de.chhe.wlanvolume.controller.activities.ActivityHelper;
+import de.chhe.wlanvolume.controller.activities.MainActivity;
 import de.chhe.wlanvolume.model.entity.WifiVolume;
 import de.chhe.wlanvolume.model.persistence.DatabaseHelper;
 
@@ -97,6 +102,7 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
 
         private static final int RETURN_CODE_VOLUME_CHANGED           = 0;
         private static final int RETURN_CODE_VOLUME_NOT_CHANGED       = 1;
+        private static final int RETURN_CODE_NO_PERMISSION            = 2;
         private final SharedPreferences prefs;
 
         private String ssid;
@@ -122,6 +128,17 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
                 //check if the user wants to change the volume, when we are connected to this SSID
                 wifiVolume = DatabaseHelper.getInstance(context).getWifiVolumeBySsid(ssid);
                 if (wifiVolume != null) {
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        //check if DnD mode enabled
+                        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+                        if (notificationManager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_ALL
+                                && wifiVolume.isEndDnd()) {
+                                if (!notificationManager.isNotificationPolicyAccessGranted()) {
+                                    return RETURN_CODE_NO_PERMISSION;
+                                }
+                        }
+                    }
 
                     //get the audio-manager, the max-volume and the current volume
                     AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -150,6 +167,25 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
             //show notification if the user wants so
             if (RETURN_CODE_VOLUME_CHANGED == returnCode) {
                 ActivityHelper.showNotification(context, wifiVolume, maxVolume);
+            }
+            if (RETURN_CODE_NO_PERMISSION == returnCode) {
+                //create notification
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+                builder.setSmallIcon(R.drawable.ic_volume_up_white_24dp);
+                builder.setAutoCancel(true);
+                builder.setContentTitle(context.getString(R.string.app_name));
+                builder.setContentText(context.getString(R.string.label_no_notify_permission));
+                Intent resultIntent = new Intent(context, MainActivity.class);
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+                stackBuilder.addParentStack(MainActivity.class);
+                stackBuilder.addNextIntent(resultIntent);
+                PendingIntent resultPendingIntent =
+                        stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.setContentIntent(resultPendingIntent);
+
+                //show notification
+                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify(ActivityHelper.NOTIFICATION_TAG, ActivityHelper.NOTIFICATION_ID, builder.build());
             }
         }
     }

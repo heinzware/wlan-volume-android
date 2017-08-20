@@ -21,7 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //general values of the database
     private static final String DATABASE_NAME = "wlan_volume.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     // Useful SQL query parts
     static final String TEXT_TYPE           = " TEXT";
@@ -77,6 +77,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.execSQL(addRestoreQuery);
                 String setRestoreFalse = "UPDATE " + WifiVolumeContract.WifiVolumeTable.TABLE_NAME + " SET " + WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_RESTORE + " = 0;";
                 db.execSQL(setRestoreFalse);
+                oldVersion = 3;
+                db.setTransactionSuccessful();
+            } catch (Exception e) {
+                Log.d(TAG, String.format(Locale.getDefault(), "Exception while upgrading database from version %d to %d.\n Exception is:\n%s", oldVersion, newVersion, e.getMessage()));
+            }
+            db.endTransaction();
+        }
+        if (oldVersion == 3) {
+            Log.d(TAG, String.format(Locale.getDefault(), "Upgrading database from version %d to %d.", oldVersion, newVersion));
+            try {
+                db.beginTransaction();
+                String addEndDndQuery = "ALTER TABLE " + WifiVolumeContract.WifiVolumeTable.TABLE_NAME + " ADD COLUMN " + WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_END_DND + INTEGER_TYPE + ";";
+                db.execSQL(addEndDndQuery);
+                String setEndDndFalse = "UPDATE " + WifiVolumeContract.WifiVolumeTable.TABLE_NAME + " SET " + WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_END_DND + " = 0;";
+                db.execSQL(setEndDndFalse);
                 db.setTransactionSuccessful();
             } catch (Exception e) {
                 Log.d(TAG, String.format(Locale.getDefault(), "Exception while upgrading database from version %d to %d.\n Exception is:\n%s", oldVersion, newVersion, e.getMessage()));
@@ -110,6 +125,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_VOLUME, wifiVolume.getVolume());
             values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_NOTIFY, wifiVolume.isShowNotification() ? 1 : 0);
             values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_RESTORE, wifiVolume.isRestore() ? 1 : 0);
+            values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_END_DND, wifiVolume.isEndDnd() ? 1: 0);
             if (wifiVolume.getComment() != null) values.put(WifiVolumeContract.WifiVolumeTable.COLUMN_NAME_COMMENT, wifiVolume.getComment());
 
             long result;
@@ -204,6 +220,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return wifiVolumes;
         } catch(Exception e) {
             //TODO: handle exception
+            Log.w(TAG, "Error while loading the list of WifiVolumes", e);
         }
 
         return new ArrayList<>();
@@ -217,6 +234,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int notifyCol   = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[3]);
         int commentCol  = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[4]);
         int restoreCol  = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[5]);
+        int endDndCol   = cursor.getColumnIndex(WifiVolumeContract.WifiVolumeTable.ALL_COLUMNS[6]);
 
         long id         = cursor.getLong(idCol);
         String ssid     = cursor.getString(ssidCol);
@@ -224,6 +242,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         boolean notify  = cursor.getInt(notifyCol) > 0;
         String comment  = cursor.getString(commentCol);
         boolean restore = cursor.getInt(restoreCol) > 0;
+        boolean endDnd  = cursor.getInt(endDndCol) > 0;
 
         WifiVolume wifiVolume = new WifiVolume();
         wifiVolume.setId(id);
@@ -232,6 +251,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         wifiVolume.setShowNotification(notify);
         wifiVolume.setComment(comment);
         wifiVolume.setRestore(restore);
+        wifiVolume.setEndDnd(endDnd);
 
         return wifiVolume;
     }

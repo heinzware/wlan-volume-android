@@ -15,6 +15,7 @@ public class WifiVolume implements Parcelable {
     private boolean showNotification;
     private boolean restore;
     private String comment;
+    private boolean endDnd;
 
     public WifiVolume(){}
 
@@ -66,6 +67,13 @@ public class WifiVolume implements Parcelable {
         this.restore = restore;
     }
 
+    public boolean isEndDnd() {
+        return endDnd;
+    }
+
+    public void setEndDnd(boolean endDnd) {
+        this.endDnd = endDnd;
+    }
 
     @Override
     public int describeContents() {
@@ -79,6 +87,7 @@ public class WifiVolume implements Parcelable {
         dest.writeValue(this.volume);
         dest.writeByte(this.showNotification ? (byte) 1 : (byte) 0);
         dest.writeByte(this.restore ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.endDnd ? (byte) 1 : (byte) 0);
         dest.writeString(this.comment);
     }
 
@@ -88,6 +97,7 @@ public class WifiVolume implements Parcelable {
         this.volume = (Integer) in.readValue(Integer.class.getClassLoader());
         this.showNotification = in.readByte() != 0;
         this.restore = in.readByte() != 0;
+        this.endDnd = in.readByte() != 0;
         this.comment = in.readString();
     }
 

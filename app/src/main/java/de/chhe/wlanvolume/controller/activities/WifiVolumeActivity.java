@@ -11,6 +11,7 @@ import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.PersistableBundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -41,7 +42,9 @@ public class WifiVolumeActivity extends AppCompatActivity {
     private SeekBar volumeSeekBar;
     private Switch restoreSwitch;
     private Switch notifySwitch;
+    private Switch endDndSwitch;
     private EditText commentEditText;
+
 
     private MenuItem editItem;
     private MenuItem saveItem;
@@ -72,6 +75,7 @@ public class WifiVolumeActivity extends AppCompatActivity {
                 if (editMode) {
                     if (view.getId() == R.id.notificationView) notifySwitch.setChecked(!notifySwitch.isChecked());
                     if (view.getId() == R.id.restoreView) restoreSwitch.setChecked(!restoreSwitch.isChecked());
+                    if (view.getId() == R.id.endDndView) endDndSwitch.setChecked(!endDndSwitch.isChecked());
                 }
             }
         };
@@ -82,6 +86,13 @@ public class WifiVolumeActivity extends AppCompatActivity {
         restoreSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
         notifySwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
         //volumeSeekBar.getThumb().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            endDndSwitch = (Switch) findViewById(R.id.endDndSwitch);
+            endDndSwitch.getThumbDrawable().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+            View endDndView = findViewById(R.id.endDndView);
+            endDndView.setOnClickListener(listener);
+        }
 
         volumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -162,6 +173,9 @@ public class WifiVolumeActivity extends AppCompatActivity {
         outState.putBoolean(ActivityHelper.INTENT_EXTRA_RESTORE, restoreSwitch.isChecked());
         outState.putString(ActivityHelper.INTENT_EXTRA_SSID, ssidTextView.getText().toString());
         outState.putInt(ActivityHelper.INTENT_EXTRA_VOLUME, volumeSeekBar.getProgress());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            outState.putBoolean(ActivityHelper.INTENT_EXTRA_END_DND, endDndSwitch.isChecked());
+        }
         if (wifiVolume != null) {
             outState.putParcelable(ActivityHelper.INTENT_EXTRA_WIFI_VOLUME, wifiVolume);
         }
@@ -191,6 +205,9 @@ public class WifiVolumeActivity extends AppCompatActivity {
                 commentEditText.setText(wifiVolume.getComment());
                 restoreSwitch.setChecked(wifiVolume.isRestore());
                 volumeSeekBar.setProgress(wifiVolume.getVolume());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    endDndSwitch.setChecked(wifiVolume.isEndDnd());
+                }
             }
         }
         if (bundle.containsKey(ActivityHelper.INTENT_EXTRA_NOTIFY)) {
@@ -203,8 +220,12 @@ public class WifiVolumeActivity extends AppCompatActivity {
             ssidTextView.setText(bundle.getString(ActivityHelper.INTENT_EXTRA_SSID));
             setTitle(ssidTextView.getText());
         }
-        if(bundle.containsKey(ActivityHelper.INTENT_EXTRA_RESTORE)){
+        if (bundle.containsKey(ActivityHelper.INTENT_EXTRA_RESTORE)) {
             restoreSwitch.setChecked(bundle.getBoolean(ActivityHelper.INTENT_EXTRA_RESTORE));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && bundle.containsKey(ActivityHelper.INTENT_EXTRA_END_DND)) {
+            endDndSwitch.setChecked(bundle.getBoolean(ActivityHelper.INTENT_EXTRA_END_DND));
         }
         applyEditMode();
     }
@@ -228,6 +249,7 @@ public class WifiVolumeActivity extends AppCompatActivity {
         if (restoreSwitch != null) restoreSwitch.setEnabled(editMode);
         if (notifySwitch != null) notifySwitch.setEnabled(editMode);
         if (commentEditText != null) commentEditText.setEnabled(editMode);
+        if (endDndSwitch != null) endDndSwitch.setEnabled(editMode);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(!editMode);
     }
 
@@ -248,6 +270,10 @@ public class WifiVolumeActivity extends AppCompatActivity {
         wifiVolume.setShowNotification(showNotification);
         wifiVolume.setComment(comment);
         wifiVolume.setRestore(restore);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            wifiVolume.setEndDnd(endDndSwitch.isChecked());
+        }
 
         new AsyncTask<Void, Void, Long>(){
             @Override

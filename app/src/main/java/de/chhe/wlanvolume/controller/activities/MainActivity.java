@@ -1,6 +1,7 @@
 package de.chhe.wlanvolume.controller.activities;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,7 +9,9 @@ import android.media.AudioManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -48,17 +51,37 @@ public class MainActivity extends AppCompatActivity {
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_RING);
 
-        ListView wifiListView = (ListView)findViewById(R.id.wlanListView);
+        ListView wifiListView = (ListView) findViewById(R.id.wlanListView);
         if (wifiListView != null) {
             listAdapter = new WifiVolumeListAdapter(this, maxVolume);
             wifiListView.setAdapter(listAdapter);
             wifiListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    startActivity(ActivityHelper.createWifiVolumeIntent(MainActivity.this, false, maxVolume, (WifiVolume)listAdapter.getItem(i), null));
+                    startActivity(ActivityHelper.createWifiVolumeIntent(MainActivity.this, false, maxVolume, (WifiVolume) listAdapter.getItem(i), null));
                 }
             });
             registerForContextMenu(wifiListView);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            NotificationManager notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
+            if (!notificationManager.isNotificationPolicyAccessGranted()) {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.label_notification_policy)
+                        .setMessage(R.string.label_notification_policy_question)
+                        .setPositiveButton(R.string.label_yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    Intent notificationIntent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                                    startActivity(notificationIntent);
+                                }
+                            }
+                        })
+                        .setNegativeButton(R.string.label_no, ActivityHelper.dialogDismissListener)
+                        .show();
+            }
         }
     }
 

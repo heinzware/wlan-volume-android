@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.NotificationCompat;
 
 import java.util.Locale;
 
@@ -23,6 +24,7 @@ public class ActivityHelper {
     static final String INTENT_EXTRA_NOTIFY      = "intent.extra.notify";
     static final String INTENT_EXTRA_COMMENT     = "intent.extra.comment";
     static final String INTENT_EXTRA_RESTORE     = "intent.extra.restore";
+    static final String INTENT_EXTRA_END_DND     = "intent.extra.end.dnd";
 
     public static final String NOTIFICATION_TAG = "WifiConnectionReceiver.Notification.Tag";
     public static final int NOTIFICATION_ID     = 42;
@@ -47,9 +49,9 @@ public class ActivityHelper {
         if (wifiVolume.isShowNotification()) {
 
             //create notification
-            Notification.Builder builder = new Notification.Builder(context)
-                    .setContentTitle(String.format(Locale.getDefault(), context.getString(R.string.label_connected_to), wifiVolume.getSsid()))
-                    .setContentText(String.format(Locale.getDefault(), context.getString(R.string.label_changed_to), wifiVolume.getVolume(), maxVolume));
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+            builder.setContentTitle(String.format(Locale.getDefault(), context.getString(R.string.label_connected_to), wifiVolume.getSsid()));
+            builder.setContentText(String.format(Locale.getDefault(), context.getString(R.string.label_changed_to), wifiVolume.getVolume(), maxVolume));
 
             //select icon by volume
             float relativeVol = (float)wifiVolume.getVolume()/(float)maxVolume;

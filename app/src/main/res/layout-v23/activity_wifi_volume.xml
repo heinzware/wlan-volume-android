@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_wlan_volume"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    tools:context="de.chhe.wlanvolume.controller.activities.WifiVolumeActivity">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/listPreferredItemHeight">
+
+            <TextView
+                android:text="@string/label_ssid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ssidLabelTextView"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/textColor"
+                android:layout_centerVertical="true"
+                android:paddingRight="5dp"
+                android:paddingEnd="5dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:id="@+id/ssidTextView"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/textColor"
+                android:layout_toEndOf="@id/ssidLabelTextView"
+                android:layout_toRightOf="@id/ssidLabelTextView"
+                android:gravity="end"/>
+
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/lineDivisor"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/lineDivisorGrey"/>
+
+        <TextView
+            android:text="@string/label_volume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:id="@+id/volumeLabelTextView"
+            android:minHeight="?attr/listPreferredItemHeightSmall"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/textColor"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text=""
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/textColor"
+                android:id="@+id/volumeTextView"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+
+            <SeekBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:max="10"
+                android:id="@+id/volumeSeekBar"
+                android:layout_toStartOf="@id/volumeTextView"
+                android:layout_toLeftOf="@id/volumeTextView"
+                android:layout_centerVertical="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true" />
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/lineDivisor2"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/lineDivisorGrey"
+            android:layout_marginTop="15dp"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/listPreferredItemHeight">
+
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:id="@+id/endDndSwitch"/>
+
+                <TextView
+                    android:text="@string/label_end_dnd_mode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/textColor"
+                    android:id="@+id/endDndTextView"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/endDndSwitch"
+                    android:layout_toLeftOf="@id/endDndSwitch"/>
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/endDndView"/>
+
+        </FrameLayout>
+
+        <View
+            android:id="@+id/lineDivisor6"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/lineDivisorGrey"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/listPreferredItemHeight">
+
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:id="@+id/restoreSwitch"/>
+
+                <TextView
+                    android:text="@string/label_restore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/textColor"
+                    android:id="@+id/restoreTextView"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/restoreSwitch"
+                    android:layout_toLeftOf="@id/restoreSwitch"/>
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/restoreView"/>
+
+        </FrameLayout>
+
+        <View
+            android:id="@+id/lineDivisor5"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/lineDivisorGrey"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/listPreferredItemHeight">
+
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:id="@+id/notificationSwitch"/>
+
+                <TextView
+                    android:text="@string/label_show_notification"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/textColor"
+                    android:id="@+id/notificationTextView"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/notificationSwitch"
+                    android:layout_toLeftOf="@id/notificationSwitch"/>
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/notificationView"/>
+
+        </FrameLayout>
+
+        <View
+            android:id="@+id/lineDivisor3"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/lineDivisorGrey"
+            android:layout_marginBottom="15dp"/>
+
+        <TextView
+            android:text="@string/label_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/commentLabelTextView"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/textColor"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/commentEditText"
+            android:inputType="text"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/textColor"
+            android:maxLines="1"/>
+
+        <View
+            android:id="@+id/lineDivisor4"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/lineDivisorGrey"
+            android:layout_marginTop="15dp"/>
+
+    </LinearLayout>
+
+</ScrollView>
