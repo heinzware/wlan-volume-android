@@ -128,15 +128,17 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
                 //check if the user wants to change the volume, when we are connected to this SSID
                 wifiVolume = DatabaseHelper.getInstance(context).getWifiVolumeBySsid(ssid);
                 if (wifiVolume != null) {
-
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         //check if DnD mode enabled
                         NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-                        if (notificationManager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_ALL
-                                && wifiVolume.isEndDnd()) {
-                                if (!notificationManager.isNotificationPolicyAccessGranted()) {
-                                    return RETURN_CODE_NO_PERMISSION;
-                                }
+                        int filter = notificationManager.getCurrentInterruptionFilter();
+                        if (filter != NotificationManager.INTERRUPTION_FILTER_ALL) {
+                            //DnD mode enabled
+                            if (!wifiVolume.isEndDnd()) {
+                                return RETURN_CODE_VOLUME_NOT_CHANGED;
+                            } else if (!notificationManager.isNotificationPolicyAccessGranted()) {
+                                return RETURN_CODE_NO_PERMISSION;
+                            }
                         }
                     }
 
@@ -146,7 +148,6 @@ public class WifiConnectionReceiver extends BroadcastReceiver {
                     int oldVolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
 
                     //set the new volume
-                    //TODO: check if dnd is enabled
                     audioManager.setStreamVolume(AudioManager.STREAM_RING, wifiVolume.getVolume(), AudioManager.FLAG_VIBRATE);
 
                     //save the old volume so we can restore it on disconnect
